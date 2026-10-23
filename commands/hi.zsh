@@ -3,10 +3,6 @@
 
 __dehv_commands+=(hi)
 __dehv_about[hi]='a small card about this Mac'
-__dehv_rows+=(
-  "hi||a small card: the date, this Mac, its network and battery"
-  "|-d, --daily|the same, only once a day (how the greeting shows it)"
-)
 
 # ─── hi ────────────────────────────────────────────────────────────────────────
 # Everything it asks is local and quick (scutil, sw_vers, sysctl, route,

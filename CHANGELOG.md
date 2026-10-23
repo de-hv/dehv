@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- `dehv` alone shows one line per command, in a card never wider than the terminal; the options of each are in `dehv help <command>`.
+- No card is wider than the terminal: a command's help wraps its descriptions, and the rest cut their lines to fit.
+- The colours are One Dark's, in 24-bit colour where the terminal has it.
+
 ## 0.1.0
 
 - dehv in a repo of its own, out of my dotfiles: a plugin loaded through the link `~/.local/share/dehv`, from a clone that can live anywhere.

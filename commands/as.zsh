@@ -3,17 +3,6 @@
 
 __dehv_commands+=(as)
 __dehv_about[as]='commit as one of my git profiles'
-__dehv_rows+=(
-  "as|<profile>|commit as that git profile in this repo"
-  "|-s, --set|the same, picking the profile from a list"
-  "|-a, --amend [<n>]|make it the author of the last <n> commits"
-  "|-n, --new <profile>|create or edit a profile: asks name and email"
-  "|-r, --remove <profile>|remove a profile"
-  "|-l, --list|list my profiles"
-  "|-c, --check|show which profile this repo commits as"
-  "|-i, --init|create the profiles file, or keep or blank it"
-  "|-x, --clear|remove every profile, after asking"
-)
 
 # ─── as ────────────────────────────────────────────────────────────────────────
 # My git identities, one profile each (personal, a company, a client), kept per

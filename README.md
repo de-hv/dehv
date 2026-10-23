@@ -137,57 +137,19 @@ It is shaped like a regular CLI: `dehv` alone prints a short usage, a command th
 
 ```
 $ dehv
-╭─ dehv ────────────────────────────────────────────────────────────────────────────────────────╮
-│ my own desktop toolkit                                                                        │
-│                                                                                               │
-│ as        <profile>               commit as that git profile in this repo                     │
-│           -s, --set               the same, picking the profile from a list                   │
-│           -a, --amend [<n>]       make it the author of the last <n> commits                  │
-│           -n, --new <profile>     create or edit a profile: asks name and email               │
-│           -r, --remove <profile>  remove a profile                                            │
-│           -l, --list              list my profiles                                            │
-│           -c, --check             show which profile this repo commits as                     │
-│           -i, --init              create the profiles file, or keep or blank it               │
-│           -x, --clear             remove every profile, after asking                          │
-│                                                                                               │
-│ branches                          tick which merged or gone branches to delete                │
-│           -l, --list              only list them, with why each can go                        │
-│                                                                                               │
-│ doctor                            check the link, the rc file, what dehv needs and its files  │
-│                                                                                               │
-│ hi                                a small card: the date, this Mac, its network and battery   │
-│           -d, --daily             the same, only once a day (how the greeting shows it)       │
-│                                                                                               │
-│ ip                                print my local IP address                                   │
-│           -p, --public            print my public one instead                                 │
-│           -c, --copy              also copy it to the clipboard                               │
-│                                                                                               │
-│ port      <port>...               show what listens on those ports                            │
-│           -a, --all               show everything that listens                                │
-│           -k, --kill [<port>...]  kill what listens there, or pick from a list                │
-│                                                                                               │
-│ skill     <name>                  create a skill                                              │
-│           -l, --link <name>       link it into the agents I pick, creating it if missing      │
-│           -u, --unlink <name>     take it out of the agents I pick, keeping it                │
-│           -d, --delete <name>     unlink it everywhere and move it to the Trash               │
-│           -r, --restore <name>    bring it back from the Trash, and pick where to link it     │
-│           -t, --to <agents>       name the agents instead of picking: claude,cursor           │
-│           -a, --all               list them, and the agents each is linked into               │
-│                                                                                               │
-│ wall      <url> [<name>]          add the image to the repo in use: download, commit, push    │
-│           -t, --to <repo>         use that repo just this once, with <url>, -s or -o          │
-│           -s, --sync              commit what changed in its folder, pull and push            │
-│           -s -a, --all            the same for every repo                                     │
-│           -u, --use [<repo>]      choose the repo the rest use, from a list without one       │
-│           -n, --new <repo>        add or edit a repo: asks its GitHub url and folder          │
-│           -r, --remove <repo>     forget a repo, keeping its folder                           │
-│           -l, --list              list my repos                                               │
-│           -o, --open              open the folder of the repo in use                          │
-│           -i, --init              create the repos file, or keep or blank it                  │
-│           -x, --clear             forget every repo, after asking                             │
-│                                                                                               │
-│ where                             the link, the clone it points to and the file that loads it │
-╰───────────────────────────────────────────────────────────────────────── dehv help <command> ─╯
+╭─ dehv ──────────────────────────────────────────────────────────────╮
+│ my own desktop toolkit                                              │
+│                                                                     │
+│ as        commit as one of my git profiles                          │
+│ branches  delete the git branches already merged or gone            │
+│ doctor    check the install of dehv and what it needs               │
+│ hi        a small card about this Mac                               │
+│ ip        print my local IP address                                 │
+│ port      inspect or free ports                                     │
+│ skill     manage my skills and the agents that see them             │
+│ wall      add wallpapers to a GitHub repo and sync it with a folder │
+│ where     show where dehv is installed                              │
+╰─────────────────────────────────────────────── dehv help <command> ─╯
 ```
 
 ```
@@ -202,7 +164,11 @@ $ dehv port
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
-The card lists every command with each way to call it: commands in cyan and arguments in yellow, in the terminal's own ANSI colours, so they follow its palette. When the output is not a terminal (`dehv -h | less`, a file) the same rows come as plain text without the frame, and with `NO_COLOR=1` without colours. Each command's help is a card of its own, and piped it starts with the usage line a misuse repeats.
+The card lists every command and what it is for, and the options of each are in `dehv help <command>`, a card of its own that piped starts with the usage line a misuse repeats.
+
+No card is wider than the terminal. In a narrow one each description of `dehv` is cut to fit, with an `…`. In a command's help the descriptions wrap beside their options instead, or under them when that leaves too little room. Every other card (`doctor`, `where`, the lists) cuts its lines to fit.
+
+The colours are One Dark's: in 24-bit colour when the terminal says it has it (`COLORTERM=truecolor`), else the nearest of the 256 every terminal has. When the output is not a terminal (`dehv -h | less`, a file) the same lines come whole, as plain text without the frame, and with `NO_COLOR=1` without colours.
 
 What a command did comes after a green `✓`, what it could not after a red `✗` (on stderr, with exit code 1) and, dimmed after a `·`, that there was nothing to do:
 
@@ -418,7 +384,7 @@ dehv/
 
 A new command is one new file, `commands/<command>.zsh`: `dehv.plugin.zsh` loads every file there, in alphabetical order (also their order in `dehv help`), so nothing else changes. The file:
 
-1. registers the command: `__dehv_commands+=(<command>)`, what it is for `dehv <tab>` in `__dehv_about[<command>]`, and its rows for `dehv help` in `__dehv_rows`, one per way to call it, as `command|arguments|what it does` (the command only on the first),
+1. registers the command: `__dehv_commands+=(<command>)`, and what it is for, the line `dehv` and `dehv <tab>` show, in `__dehv_about[<command>]`,
 2. defines `__dehv.<command>` and its help in `__dehv.<command>.help`, a call to `__dehv.usage` with the usage line errors repeat, what the command is for and a row per way to call it,
 3. defines its completion, `_dehv.<command>`.
 

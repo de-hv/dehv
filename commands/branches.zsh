@@ -3,10 +3,6 @@
 
 __dehv_commands+=(branches)
 __dehv_about[branches]='delete the git branches already merged or gone'
-__dehv_rows+=(
-  "branches||tick which merged or gone branches to delete"
-  "|-l, --list|only list them, with why each can go"
-)
 
 # ─── branches ──────────────────────────────────────────────────────────────────
 # Every local branch but the one checked out and the default one, each with why

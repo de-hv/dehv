@@ -3,9 +3,6 @@
 
 __dehv_commands+=(where)
 __dehv_about[where]='show where dehv is installed'
-__dehv_rows+=(
-  "where||the link, the clone it points to and the file that loads it"
-)
 
 # ─── where ─────────────────────────────────────────────────────────────────────
 __dehv.where.help() {

@@ -3,11 +3,6 @@
 
 __dehv_commands+=(port)
 __dehv_about[port]='inspect or free ports'
-__dehv_rows+=(
-  "port|<port>...|show what listens on those ports"
-  "|-a, --all|show everything that listens"
-  "|-k, --kill [<port>...]|kill what listens there, or pick from a list"
-)
 
 # ─── port ──────────────────────────────────────────────────────────────────────
 __dehv.port.help() {

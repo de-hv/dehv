@@ -3,19 +3,6 @@
 
 __dehv_commands+=(wall)
 __dehv_about[wall]='add wallpapers to a GitHub repo and sync it with a folder'
-__dehv_rows+=(
-  "wall|<url> [<name>]|add the image to the repo in use: download, commit, push"
-  "|-t, --to <repo>|use that repo just this once, with <url>, -s or -o"
-  "|-s, --sync|commit what changed in its folder, pull and push"
-  "|-s -a, --all|the same for every repo"
-  "|-u, --use [<repo>]|choose the repo the rest use, from a list without one"
-  "|-n, --new <repo>|add or edit a repo: asks its GitHub url and folder"
-  "|-r, --remove <repo>|forget a repo, keeping its folder"
-  "|-l, --list|list my repos"
-  "|-o, --open|open the folder of the repo in use"
-  "|-i, --init|create the repos file, or keep or blank it"
-  "|-x, --clear|forget every repo, after asking"
-)
 
 # ─── wall ──────────────────────────────────────────────────────────────────────
 # Each repo is a GitHub repo of images and the folder it is cloned into, kept

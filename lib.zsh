@@ -3,15 +3,26 @@
 # dehv.plugin.zsh, and by install.sh.
 
 # ─── style ─────────────────────────────────────────────────────────────────────
-# Bold, dim and the terminal's own red, green, yellow and cyan, so they follow
-# its palette. Plain text when the output ($1, a file descriptor; stdout
-# without it) is not a terminal or NO_COLOR is set. Sets $b $c $d $g $y $x and
-# $r in the caller, which declares them local.
+# Bold, and One Dark's grey, red, green, yellow and cyan: in 24-bit colour when
+# the terminal says it has it ($COLORTERM), else the nearest of the 256 every
+# terminal has. Sets $b $c $d $g $y $x and $r in the caller, which declares
+# them local.
+__dehv.palette() {
+  b=$'\e[1m' r=$'\e[0m'
+  if [[ "$COLORTERM" == (truecolor|24bit) ]]; then
+    d=$'\e[38;2;127;132;142m' x=$'\e[38;2;224;108;117m' g=$'\e[38;2;152;195;121m'
+    y=$'\e[38;2;229;192;123m' c=$'\e[38;2;86;182;194m'
+  else
+    d=$'\e[38;5;245m' x=$'\e[38;5;168m' g=$'\e[38;5;114m' y=$'\e[38;5;180m' c=$'\e[38;5;73m'
+  fi
+}
+
+# The palette, or plain text when the output ($1, a file descriptor; stdout
+# without it) is not a terminal or NO_COLOR is set.
 __dehv.style() {
   b= c= d= g= y= x= r=
-  if [ -t ${1:-1} ] && [ -z "$NO_COLOR" ]; then
-    b=$'\e[1m' d=$'\e[90m' x=$'\e[31m' g=$'\e[32m' y=$'\e[33m' c=$'\e[36m' r=$'\e[0m'
-  fi
+  [ -t ${1:-1} ] && [ -z "$NO_COLOR" ] && __dehv.palette
+  return 0
 }
 
 # ─── install ───────────────────────────────────────────────────────────────────
@@ -114,14 +125,34 @@ __dehv.usage() {
     f=("${(@s:|:)row}")
     (( ${#f[1]} > w )) && w=${#f[1]}
   done
-  for row in "$@"; do
-    f=("${(@s:|:)row}")
-    lines+=("${y}${(r:w:)f[1]}${r}  ${f[2]}")
-  done
 
   if [ -t 1 ]; then
-    __dehv.box "dehv $name" "" "${d}${about}${r}" "" "${lines[@]}"
+    # No wider than the terminal: the card takes 4 columns, and what each row
+    # does wraps beside its arguments, or under them when that leaves too few.
+    local fit=$(( $(__dehv.cols) - 4 )) i
+    local dw=$(( fit - w - 2 )) indent=$(( w + 2 ))
+    (( dw < 24 )) && dw=$(( fit - 2 )) indent=2
+
+    __dehv.wrap "$about" $fit
+    for i in "${reply[@]}"; do lines+=("${d}${i}${r}"); done
+    lines+=("")
+    for row in "$@"; do
+      f=("${(@s:|:)row}")
+      __dehv.wrap "${f[2]}" $dw
+      if (( indent == 2 )); then
+        lines+=("${y}${f[1]}${r}")
+        for i in "${reply[@]}"; do lines+=("  $i"); done
+      else
+        lines+=("${y}${(r:w:)f[1]}${r}  ${reply[1]}")
+        for i in "${(@)reply[2,-1]}"; do lines+=("${(l:indent:)}$i"); done
+      fi
+    done
+    __dehv.box "dehv $name" "" "${lines[@]}"
   else
+    for row in "$@"; do
+      f=("${(@s:|:)row}")
+      lines+=("${(r:w:)f[1]}  ${f[2]}")
+    done
     print -r -- "Usage: $usage
 
 $about
@@ -163,23 +194,75 @@ __dehv.noop() {
   print -r -- "${d}· $1${r}"
 }
 
+# The terminal's width: $COLUMNS, or what tput says where it is not set.
+__dehv.cols() {
+  print -r -- ${COLUMNS:-$(tput cols 2>/dev/null || print 80)}
+}
+
+# $1 broken into lines of at most $2 columns, at spaces, into $reply.
+__dehv.wrap() {
+  local word line=
+  reply=()
+  for word in ${=1}; do
+    if [ -z "$line" ]; then
+      line=$word
+    elif (( ${#line} + 1 + ${#word} <= $2 )); then
+      line+=" $word"
+    else
+      reply+=("$line") line=$word
+    fi
+  done
+  [ -n "$line" ] && reply+=("$line")
+}
+
+# $1 cut to $2 columns of text with an …, keeping its colours, which take none.
+__dehv.cut() {
+  setopt localoptions extendedglob
+  local s="$1" out= seq n=0
+  local plain=${s//$'\e'\[[0-9;]#m/}
+  (( ${#plain} <= $2 )) && { print -r -- "$s"; return }
+  while [ -n "$s" ] && (( n < $2 - 1 )); do
+    if [ "${s[1]}" = $'\e' ]; then
+      seq=${(M)s##$'\e'\[[0-9;]#m}
+      [ -n "$seq" ] || seq=${s[1]}
+      out+=$seq s=${s[${#seq}+1,-1]}
+    else
+      out+=${s[1]} s=${s[2,-1]}
+      (( n++ ))
+    fi
+  done
+  [[ "$out" == *$'\e'* ]] && out+=$'\e[0m'
+  print -r -- "$out…"
+}
+
 # A rounded frame around the lines given, with $1 in its top border and $2 in
-# the bottom one. The lines may carry colours: they are measured without.
+# the bottom one. The lines may carry colours: they are measured without. In a
+# terminal it is never wider than it, and a line too long is cut to fit.
 __dehv.box() {
   setopt localoptions extendedglob
   local title="$1" foot="$2"; shift 2
   local b c d g y x r; __dehv.style
+  local -a body=("$@")
 
-  local line plain w=$(( ${#title} + 2 ))
+  local line plain i w=$(( ${#title} + 2 ))
   (( ${#foot} + 2 > w )) && w=$(( ${#foot} + 2 ))
-  for line in "$@"; do
+  for line in "${body[@]}"; do
     plain=${line//$'\e'\[[0-9;]#m/}
     (( ${#plain} > w )) && w=${#plain}
   done
 
+  if [ -t 1 ]; then
+    local fit=$(( $(__dehv.cols) - 4 ))
+    if (( w > fit )); then
+      w=$fit
+      for (( i = 1; i <= ${#body}; i++ )); do body[i]=$(__dehv.cut "${body[i]}" $fit); done
+      (( ${#foot} + 2 > w )) && foot=
+    fi
+  fi
+
   local n=$(( w - 1 - ${#title} ))
   print -r -- "${d}╭─${r} ${c}${title}${r} ${d}${(l:n::─:):-}╮${r}"
-  for line in "$@"; do
+  for line in "${body[@]}"; do
     plain=${line//$'\e'\[[0-9;]#m/}
     n=$(( w - ${#plain} ))
     print -r -- "${d}│${r} ${line}${(l:n:):-} ${d}│${r}"
@@ -200,7 +283,8 @@ __dehv.box() {
 __dehv.pick() {
   local -a items=("$@")
   local n=${#items} cur=1 i key rest
-  local bold=$'\e[1m' cyan=$'\e[36m' reset=$'\e[0m'
+  local b c d g y x r; __dehv.palette
+  local bold=$b cyan=$c reset=$r
   [ -z "$NO_COLOR" ] || bold= cyan= reset=
 
   print -n -- $'\e[?25l' > /dev/tty
@@ -250,7 +334,8 @@ __dehv.pickmany() {
   local n=${#items} cur=1 i key rest box quit=false
   local -A tick
   for i in $on; do tick[$i]=1; done
-  local bold=$'\e[1m' dim=$'\e[90m' green=$'\e[32m' cyan=$'\e[36m' reset=$'\e[0m'
+  local b c d g y x r; __dehv.palette
+  local bold=$b dim=$d green=$g cyan=$c reset=$r
   [ -z "$NO_COLOR" ] || bold= dim= green= cyan= reset=
 
   print -n -- $'\e[?25l' > /dev/tty

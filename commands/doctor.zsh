@@ -3,9 +3,6 @@
 
 __dehv_commands+=(doctor)
 __dehv_about[doctor]='check the install of dehv and what it needs'
-__dehv_rows+=(
-  "doctor||check the link, the rc file, what dehv needs and its files"
-)
 
 # ─── doctor ────────────────────────────────────────────────────────────────────
 # The same checks install.sh makes before installing, plus the files the

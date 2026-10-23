@@ -32,7 +32,14 @@ tty=false
 
 local b c d g y x r; __dehv.style
 local w= sel=
-[ -n "$r" ] && w=$'\e[97m' sel=$'\e[48;5;237m'
+# One Dark's foreground and selection, as __dehv.palette picks its colours.
+if [ -n "$r" ]; then
+  if [[ "$COLORTERM" == (truecolor|24bit) ]]; then
+    w=$'\e[38;2;171;178;191m' sel=$'\e[48;2;62;68;81m'
+  else
+    w=$'\e[38;5;249m' sel=$'\e[48;5;238m'
+  fi
+fi
 
 # ─── usage ─────────────────────────────────────────────────────────────────────
 usage() {

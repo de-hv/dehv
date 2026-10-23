@@ -3,11 +3,6 @@
 
 __dehv_commands+=(ip)
 __dehv_about[ip]='print my local IP address'
-__dehv_rows+=(
-  "ip||print my local IP address"
-  "|-p, --public|print my public one instead"
-  "|-c, --copy|also copy it to the clipboard"
-)
 
 # ─── ip ──────────────────────────────────────────────────────────────────────
 # The address of whichever interface the default route goes through, so it

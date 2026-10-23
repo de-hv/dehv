@@ -16,9 +16,7 @@
 # `dehv help`. Adding a command is adding one file there that:
 #
 #   1. registers it:  __dehv_commands+=(<command>)
-#                     __dehv_about[<command>]='what it is, for dehv <tab>'
-#                     __dehv_rows+=("<command>|<arguments>|what it does"
-#                                   "|<arguments>|what it does" ...)
+#                     __dehv_about[<command>]='what it is, for dehv and dehv <tab>'
 #   2. defines __dehv.<command> and its help, __dehv.<command>.help, a call to
 #      __dehv.usage,
 #   3. and its completion, _dehv.<command>.
@@ -30,7 +28,7 @@
 __dehv_dir=${${(%):-%x}:A:h}
 
 # Emptied first, so sourcing again does not repeat any row.
-typeset -ga __dehv_commands=() __dehv_rows=()
+typeset -ga __dehv_commands=()
 typeset -gA __dehv_about=()
 
 () {
@@ -71,22 +69,16 @@ dehv() {
 }
 
 # ─── help ──────────────────────────────────────────────────────────────────────
-# Every command with each way to call it, the rows the commands registered as
-# command|arguments|what it does: in a terminal, a card; piped, the same rows
-# as plain text.
+# Every command and what it is for, the about each registered: in a terminal,
+# a card, which cuts each about to fit; piped, the same lines whole, as plain
+# text. The options are in `dehv help <command>`.
 __dehv.help() {
   local b c d g y x r; __dehv.style
-  local -a lines f
-
-  # The command column as wide as the longest name, plus two.
-  local row cmd w=0
+  local -a lines
+  local cmd w=0
   for cmd in $__dehv_commands; do (( ${#cmd} > w )) && w=${#cmd}; done
-  (( w += 2 ))
-
-  for row in $__dehv_rows; do
-    f=("${(@s:|:)row}")
-    [ -n "${f[1]}" ] && [ ${#lines} -gt 0 ] && lines+=("")
-    lines+=("${c}${(r:w:)f[1]}${r}${y}${(r:24:)f[2]}${r}${f[3]}")
+  for cmd in $__dehv_commands; do
+    lines+=("${c}${(r:w:)cmd}${r}  ${__dehv_about[$cmd]}")
   done
 
   if [ -t 1 ]; then
@@ -98,7 +90,7 @@ Usage: dehv <command> [options] [args]
 "
     print -rl -- "${lines[@]}"
     print -r -- "
-Run 'dehv help <command>' for details."
+Run 'dehv help <command>' for its options."
   fi
 }
 

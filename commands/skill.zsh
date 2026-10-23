@@ -3,15 +3,6 @@
 
 __dehv_commands+=(skill)
 __dehv_about[skill]='manage my skills and the agents that see them'
-__dehv_rows+=(
-  "skill|<name>|create a skill"
-  "|-l, --link <name>|link it into the agents I pick, creating it if missing"
-  "|-u, --unlink <name>|take it out of the agents I pick, keeping it"
-  "|-d, --delete <name>|unlink it everywhere and move it to the Trash"
-  "|-r, --restore <name>|bring it back from the Trash, and pick where to link it"
-  "|-t, --to <agents>|name the agents instead of picking: claude,cursor"
-  "|-a, --all|list them, and the agents each is linked into"
-)
 
 # The agents `dehv skill` can link a skill into, as name|the folder that tells
 # the agent is installed|where its skills go. Only the installed ones are ever
