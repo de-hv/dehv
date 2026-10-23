@@ -19,7 +19,8 @@
 # --yes says yes to what is required and skips what is optional. The block is
 # found again by its two marker lines, so update and uninstall touch nothing
 # else in the file, and a link there (~/.zshrc kept by a dotfiles repo) is
-# written through, never replaced.
+# written through, never replaced: the block checks for the plugin before
+# sourcing it, so a dotfiles repo can keep it on a Mac without dehv.
 
 here=${0:A:h}
 source "$here/lib.zsh"
@@ -227,12 +228,12 @@ read_state() {
   fi
 }
 
-# The rc file install would write when none has the block yet: $rc_opt, or
-# ~/.zshrc. Sets $rc_plan and, in $rc_note, what would happen to it.
+# The rc file install writes: $rc_opt, or ~/.zshrc. Sets $rc_plan and, in
+# $rc_note, what would happen to it.
 plan_rc() {
   rc_plan=${rc_opt:-${ZDOTDIR:-$HOME}/.zshrc}
-  if [ -L "$rc_plan" ] && [ -z "$rc_opt" ]; then
-    rc_note="a link to $(home "${rc_plan:A}"): asked when installing"
+  if [ -L "$rc_plan" ]; then
+    rc_note="a link to $(home "${rc_plan:A}"), written through"
   elif [ -e "$rc_plan" ]; then
     rc_note="the block goes at its end"
   else
@@ -305,12 +306,14 @@ header() {
       [ "$target" != "$here" ] && field this "${y}$(home "$here")${r}" ;;
   esac
 
-  if [ -n "$rc_now" ]; then
+  plan_rc
+  if [ -n "$rc_now" ] && [ "${rc_now:A}" != "${rc_plan:A}" ]; then
+    field loads "$(home "$rc_now")  ${y}moves to $(home "$rc_plan") on install${r}"
+  elif [ -n "$rc_now" ]; then
     field loads "$(home "$rc_now")"
   elif [ "$state" = partial ]; then
     field loads "${y}no rc file has the dehv block${r}"
   else
-    plan_rc
     field loads "$(home "$rc_plan")  ${d}${rc_note}${r}"
   fi
 
@@ -410,55 +413,6 @@ install_needs() {
 }
 
 # ─── rc file ───────────────────────────────────────────────────────────────────
-# Sets $rc to the file to write the block in, or to nothing when I add the
-# line myself.
-choose_rc() {
-  if [ -n "$rc_opt" ]; then
-    rc=$rc_opt
-    return
-  fi
-  if [ -n "$rc_now" ]; then
-    rc=$rc_now
-    return
-  fi
-
-  local main=${ZDOTDIR:-$HOME}/.zshrc local=$HOME/.zshrc.local
-  if [ ! -L "$main" ]; then
-    rc=$main
-    return
-  fi
-
-  # A ~/.zshrc that is a link belongs to something else, a dotfiles repo most
-  # likely: writing in it would change that repo.
-  if [ "$yes" = true ] || [ "$tty" = false ]; then
-    if [ -f "$local" ]; then
-      rc=$local
-      return
-    fi
-    step fail "rc file" "$(home "$main") is a link: name the file with --rc <file>"
-    return 1
-  fi
-
-  local -a rows
-  [ -f "$local" ] && rows+=("$(home "$local")|exists")
-  rows+=("$(home "$main")|write it anyway, in $(home "${main:A}")" "Another file…|type its path" "Print the line|I add it myself")
-  ask "$(home "$main") is a link to $(home "${main:A}"): writing there changes that file. Where should dehv load from?" \
-    "${rows[@]}" || return 1
-
-  case "$REPLY" in
-    "Another file…")
-      local file
-      vared -p "   ${c}file${r} " file || return 1
-      [ -n "$file" ] || return 1
-      rc=${file/#\~/$HOME}
-      [[ "$rc" == /* ]] || rc=$PWD/$rc ;;
-    "Print the line")
-      rc= ;;
-    *)
-      rc=${REPLY/#\~/$HOME} ;;
-  esac
-}
-
 # The block, as the lines it has. The path is written with $HOME, so the file
 # reads the same on any Mac.
 block() {
@@ -549,27 +503,26 @@ verify() {
 # ─── actions ───────────────────────────────────────────────────────────────────
 do_install() {
   install_needs || return 1
-  choose_rc || return 1
+  plan_rc
+  rc=$rc_plan
 
   make_link || return 1
 
-  if [ -z "$rc" ]; then
-    step skip "rc file" "add these lines to the one you choose:"
-    print -r -- ""
-    block | sed 's/^/     /'
-    print -r -- ""
+  write_block "$rc" || { step fail "rc file" "could not write $(home "$rc")"; return 1; }
+  __dehv.config.set install.rc "$(home "$rc")"
+  if [ -L "$rc" ]; then
+    step ok "rc file" "$(home "$rc") loads it, through its link to $(home "${rc:A}")"
   else
-    write_block "$rc" || { step fail "rc file" "could not write $(home "$rc")"; return 1; }
-    __dehv.config.set install.rc "$(home "$rc")"
     step ok "rc file" "$(home "$rc") loads it"
-    # Moved with --rc: the old file would load it a second time.
-    if [ -n "$rc_now" ] && [ "${rc_now:A}" != "${rc:A}" ]; then
-      remove_block "$rc_now" && step ok "rc file" "the block is out of $(home "$rc_now")"
-    fi
+  fi
+  # In another file before, ~/.zshrc.local or an old --rc: it would load it a
+  # second time.
+  if [ -n "$rc_now" ] && [ "${rc_now:A}" != "${rc:A}" ]; then
+    remove_block "$rc_now" && step ok "rc file" "the block is out of $(home "$rc_now")"
   fi
 
   choose_greeting || return 1
-  [ -n "$rc" ] && { verify || return 1; }
+  verify || return 1
 
   print -r -- ""
   print -r -- "   ${g}Installed${r} ${d}·${r} run ${c}exec zsh${r} to load it, then ${c}dehv where${r}"

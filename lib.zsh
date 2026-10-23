@@ -67,7 +67,7 @@ __dehv.version() {
 # or else the first of the usual ones that has it. Fails when none does.
 __dehv.rc() {
   local file z=${ZDOTDIR:-$HOME}
-  for file in "$(__dehv.config install.rc)" "$z/.zshrc" "$HOME/.zshrc.local" "$z/.zprofile" "$z/.zshenv"; do
+  for file in "$(__dehv.config install.rc)" "$z/.zshrc" "$z/.zprofile" "$z/.zshenv"; do
     [ -n "$file" ] && [ -f "$file" ] && grep -qxF "$__dehv_mark_begin" "$file" 2>/dev/null || continue
     print -r -- "$file"
     return 0

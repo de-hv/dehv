@@ -5,6 +5,7 @@
 - `dehv` alone shows one line per command, in a card never wider than the terminal; the options of each are in `dehv help <command>`.
 - No card is wider than the terminal: a command's help wraps its descriptions, and the rest cut their lines to fit.
 - The colours are One Dark's, in 24-bit colour where the terminal has it.
+- `install.sh` always loads dehv from `~/.zshrc`, creating it if there is none, and through its link when a dotfiles repo keeps it; it no longer offers `~/.zshrc.local`, and moves a block found there.
 
 ## 0.1.0
 

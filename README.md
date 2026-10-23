@@ -74,12 +74,12 @@ The same, without the menu:
 | `./install.sh relink` | point the link to this folder |
 | `./install.sh status` | what is installed; exit code 1 when it is not |
 | `-y`, `--yes` | no questions: yes to what is required, skip what is optional |
-| `--rc <file>` | write the block in that file instead of `~/.zshrc` |
+| `--rc <file>` | write the block in that file instead of `~/.zshrc`, for this run |
 | `--greeting`, `--no-greeting` | show the `dehv hi` card in the first terminal of the day, or not |
 
 When the output is not a terminal there is no menu: `./install.sh` alone is `status`.
 
-**When `~/.zshrc` is a link**, as a dotfiles repo leaves it, writing there would change that repo. The installer says where it points and asks where to load dehv from instead: `~/.zshrc.local` when there is one, `~/.zshrc` anyway, another file, or only print the lines to add by hand. With `--yes` it takes `~/.zshrc.local`, or stops and asks for `--rc`. The file is always written through, so a link there stays a link.
+**When `~/.zshrc` is a link**, as a dotfiles repo leaves it, the block is written through it, so the link stays a link and the block lands in the repo. That is safe to commit: it checks for `dehv.plugin.zsh` before sourcing it, so a Mac without dehv skips it. A block already in another file (`~/.zshrc.local` or an earlier `--rc`) moves to `~/.zshrc` on install.
 
 ## What it needs
 
@@ -107,7 +107,7 @@ Checked before anything is touched; nothing is installed without asking.
 |---|---|
 | the clone | the code, wherever it was cloned |
 | `~/.local/share/dehv` | the link to the clone (`$XDG_DATA_HOME/dehv` when set) |
-| `~/.zshrc`, or the file chosen | the block that loads dehv |
+| `~/.zshrc`, or the one given with `--rc` | the block that loads dehv |
 | `~/.config/dehv/config` | settings: the greeting, the skills folder, the rc file in use (see [Config](#config)) |
 | `~/.config/dehv/profiles` | my git profiles for `dehv as` (`chmod 600`) |
 | `~/.config/dehv/walls` | my wallpaper repos for `dehv wall` (`chmod 600`) |
