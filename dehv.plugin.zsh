@@ -70,8 +70,11 @@ dehv() {
 
 # ─── help ──────────────────────────────────────────────────────────────────────
 # Every command and what it is for, the about each registered: in a terminal,
-# a card, which cuts each about to fit; piped, the same lines whole, as plain
-# text. The options are in `dehv help <command>`.
+# a card, which cuts each about to fit, between a header with the version and
+# a footer with how to go on, whether `dehv doctor` passes and whether the
+# greeting is on (their right parts go first when the terminal is narrow);
+# piped, the same lines whole, as plain text. The options are in
+# `dehv help <command>`.
 __dehv.help() {
   local b c d g y x r; __dehv.style
   local -a lines
@@ -82,7 +85,26 @@ __dehv.help() {
   done
 
   if [ -t 1 ]; then
-    __dehv.box dehv "dehv help <command>" "${d}my own desktop toolkit${r}" "" "${lines[@]}"
+    local version=$(__dehv.version) rev branch doctor greeting
+    rev=$(git -C "$__dehv_dir" log -1 --format=%h 2>/dev/null)
+    branch=$(git -C "$__dehv_dir" branch --show-current 2>/dev/null)
+    if __dehv.doctor >/dev/null 2>&1; then
+      doctor="${g}✓ all good${r}"
+    else
+      doctor="${x}✗ run dehv doctor${r}"
+    fi
+    if [ "$(__dehv.config hi.daily)" = true ]; then
+      greeting="${g}on${r}"
+    else
+      greeting="${d}off${r}"
+    fi
+
+    __dehv.box "" "" \
+      "${x}❯${y}❯${g}❯${r} ${b}dehv${r}  ${d}my own desktop toolkit${r}"$'\t'"${d}v${version:-?}${branch:+ · $branch}${rev:+ · $rev}${r}" \
+      "$__dehv_rule" \
+      "${lines[@]}" \
+      "$__dehv_rule" \
+      "${y}dehv help <command>${r} ${d}its options${r}"$'\t'"${d}doctor${r} ${doctor}  ${d}greeting${r} ${greeting}"
   else
     print -r -- "dehv - my own desktop toolkit
 

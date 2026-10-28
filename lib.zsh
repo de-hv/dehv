@@ -235,19 +235,25 @@ __dehv.cut() {
   print -r -- "$out…"
 }
 
-# A rounded frame around the lines given, with $1 in its top border and $2 in
-# the bottom one. The lines may carry colours: they are measured without. In a
-# terminal it is never wider than it, and a line too long is cut to fit.
+# A body line of __dehv.box that is only this draws a rule across the frame.
+__dehv_rule=$'\x1f'
+
+# A rounded frame around the lines given, with $1 in its top border (a plain
+# one without it) and $2 in the bottom one. The lines may carry colours: they
+# are measured without. A line with a tab has its part after the tab pushed to
+# the right edge, and a line that is only $__dehv_rule is a rule. In a terminal
+# it is never wider than it: a line too long loses its right part first, then
+# is cut to fit.
 __dehv.box() {
   setopt localoptions extendedglob
   local title="$1" foot="$2"; shift 2
   local b c d g y x r; __dehv.style
   local -a body=("$@")
 
-  local line plain i w=$(( ${#title} + 2 ))
+  local line plain left right i w=$(( ${#title} + 2 ))
   (( ${#foot} + 2 > w )) && w=$(( ${#foot} + 2 ))
   for line in "${body[@]}"; do
-    plain=${line//$'\e'\[[0-9;]#m/}
+    plain=${${line//$'\e'\[[0-9;]#m/}/$'\t'/  }
     (( ${#plain} > w )) && w=${#plain}
   done
 
@@ -255,14 +261,33 @@ __dehv.box() {
     local fit=$(( $(__dehv.cols) - 4 ))
     if (( w > fit )); then
       w=$fit
-      for (( i = 1; i <= ${#body}; i++ )); do body[i]=$(__dehv.cut "${body[i]}" $fit); done
+      for (( i = 1; i <= ${#body}; i++ )); do
+        line=${body[i]}
+        plain=${${line//$'\e'\[[0-9;]#m/}/$'\t'/  }
+        (( ${#plain} > fit )) && [[ "$line" == *$'\t'* ]] && line=${line%%$'\t'*}
+        body[i]=$(__dehv.cut "$line" $fit)
+      done
       (( ${#foot} + 2 > w )) && foot=
     fi
   fi
 
-  local n=$(( w - 1 - ${#title} ))
-  print -r -- "${d}╭─${r} ${c}${title}${r} ${d}${(l:n::─:):-}╮${r}"
+  local n=$(( w - 1 - ${#title} )) full=$(( w + 2 ))
+  if [ -n "$title" ]; then
+    print -r -- "${d}╭─${r} ${c}${title}${r} ${d}${(l:n::─:):-}╮${r}"
+  else
+    print -r -- "${d}╭${(l:full::─:):-}╮${r}"
+  fi
   for line in "${body[@]}"; do
+    if [ "$line" = "$__dehv_rule" ]; then
+      print -r -- "${d}├${(l:full::─:):-}┤${r}"
+      continue
+    fi
+    if [[ "$line" == *$'\t'* ]]; then
+      left=${line%%$'\t'*} right=${line#*$'\t'}
+      plain=${left//$'\e'\[[0-9;]#m/}${right//$'\e'\[[0-9;]#m/}
+      n=$(( w - ${#plain} ))
+      line="${left}${(l:n:):-}${right}"
+    fi
     plain=${line//$'\e'\[[0-9;]#m/}
     n=$(( w - ${#plain} ))
     print -r -- "${d}│${r} ${line}${(l:n:):-} ${d}│${r}"

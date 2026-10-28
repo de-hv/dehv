@@ -137,9 +137,9 @@ It is shaped like a regular CLI: `dehv` alone prints a short usage, a command th
 
 ```
 $ dehv
-╭─ dehv ──────────────────────────────────────────────────────────────╮
-│ my own desktop toolkit                                              │
-│                                                                     │
+╭─────────────────────────────────────────────────────────────────────╮
+│ ❯❯❯ dehv  my own desktop toolkit            v0.1.0 · main · efb1a5a │
+├─────────────────────────────────────────────────────────────────────┤
 │ as        commit as one of my git profiles                          │
 │ branches  delete the git branches already merged or gone            │
 │ doctor    check the install of dehv and what it needs               │
@@ -147,9 +147,12 @@ $ dehv
 │ ip        print my local IP address                                 │
 │ port      inspect or free ports                                     │
 │ skill     manage my skills and the agents that see them             │
+│ tap       the steps to release to my homebrew-tap                   │
 │ wall      add wallpapers to a GitHub repo and sync it with a folder │
 │ where     show where dehv is installed                              │
-╰─────────────────────────────────────────────── dehv help <command> ─╯
+├─────────────────────────────────────────────────────────────────────┤
+│ dehv help <command> its options      doctor ✓ all good  greeting on │
+╰─────────────────────────────────────────────────────────────────────╯
 ```
 
 ```
@@ -164,7 +167,7 @@ $ dehv port
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
-The card lists every command and what it is for, and the options of each are in `dehv help <command>`, a card of its own that piped starts with the usage line a misuse repeats.
+The card lists every command and what it is for, between a header with the version, branch and commit of the clone and a footer with whether `dehv doctor` passes and whether the greeting is on; in a narrow terminal those right-hand parts go first. The options of each command are in `dehv help <command>`, a card of its own that piped starts with the usage line a misuse repeats.
 
 No card is wider than the terminal. In a narrow one each description of `dehv` is cut to fit, with an `…`. In a command's help the descriptions wrap beside their options instead, or under them when that leaves too little room. Every other card (`doctor`, `where`, the lists) cuts its lines to fit.
 
@@ -340,6 +343,41 @@ $ dehv wall -s
 ✓ personal · ↑ 2 added, 1 removed · ↓ 3 added · ~/Pictures/wallpapers
 ```
 
+### dehv tap
+
+`dehv tap` only prints: the commands to release an app or a command line tool to my homebrew-tap, `de-hv/homebrew-tap`, to copy and run by hand. An app (`.app`) is a cask, in `Casks/<app>.rb`, released as a zip; a command line tool is a formula, in `Formula/<name>.rb`, released as a tarball of its binary or as the tag's source, which brew builds.
+
+| Command | Does |
+|---|---|
+| `dehv tap` | the steps for both, with `<placeholders>` in yellow |
+| `dehv tap -c [<App> <version>]` | only the cask's, filled in: zip with `ditto`, its `shasum -a 256`, upload with `gh release create`, the `version` and `sha256` of the `.rb`, push, then `brew audit` and `brew upgrade`. Without them, the app is the one `build/*.app` and the version `./VERSION`, when the folder has them (`--cask`) |
+| `dehv tap -f [<name> <version>]` | only the formula's, filled in: pack the binary with `tar`, its sha256, upload it, the `url` and `sha256` of the `.rb`, push, then `brew audit`, `brew install` and `brew test`. Without them, the name is the repo's folder and the version `./VERSION` (`--formula`) |
+| `dehv tap -s` | the formula's, built by brew from the tag's source: `git tag`, and the sha256 of GitHub's tarball of it, through `curl` (`--source`) |
+
+Each ends with the `brew create` that starts a new one from its url. Piped, they come as a script whose notes and `.rb` lines are comments. The GitHub owner of the tap and of the apps is `tap.owner` in the [config](#config), `de-hv` without it.
+
+```
+$ dehv tap -c Inlay 0.2.0
+dehv tap · the steps to release to de-hv/homebrew-tap
+
+Cask · an app (.app), in Casks/inlay.rb
+  1 zip the app
+    ditto -c -k --keepParent build/Inlay.app build/Inlay-0.2.0.zip
+  2 its sha256
+    shasum -a 256 build/Inlay-0.2.0.zip
+  3 upload it, where the cask's url points
+    gh release create v0.2.0 build/Inlay-0.2.0.zip
+  4 in homebrew-tap, Casks/inlay.rb
+    version "0.2.0"
+    sha256 "<the sha256 of 2>"
+  5 push it
+    git commit -am "inlay 0.2.0" && git push
+  6 check it
+    brew update && brew audit --cask de-hv/tap/inlay
+    brew upgrade --cask de-hv/tap/inlay
+  ...
+```
+
 ### Examples
 
 ```sh
@@ -348,6 +386,7 @@ dehv branches                                     # clean up after merged PRs
 dehv as acme -s -a                                # commit as acme here and fix the last commit
 dehv skill notes -l                               # start a skill and tick the agents that see it
 dehv wall -s                                      # push the wallpapers I dropped in the folder
+dehv tap -c                                       # in an app's repo: the steps to release it to my tap
 ```
 
 Tab completion works at every level: `dehv <tab>` lists the commands and `dehv <command> -<tab>` its options with what they do. `dehv skill <tab>` offers the names of my skills and `-t <tab>` the agents; `dehv wall -t <tab>`, `-u`, `-n` and `-r` my wallpaper repos. It registers itself whether the block is read before or after `compinit`.
@@ -363,6 +402,8 @@ Tab completion works at every level: `dehv <tab>` lists the commands and `dehv <
 	dir = ~/Documents/dev/skills   # where dehv skill keeps the skills
 [install]
 	rc = ~/.zshrc                  # the file with the block; install.sh writes it
+[tap]
+	owner = de-hv                  # the GitHub owner of my homebrew-tap and its apps, for dehv tap
 ```
 
 `install.sh` writes `hi.daily` and `install.rc`; `git config -f ~/.config/dehv/config skill.dir ~/somewhere` sets the rest.
