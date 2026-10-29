@@ -1,5 +1,5 @@
 # dehv wall: my wallpapers, kept in a GitHub repo and synced with a folder.
-# Loaded by ../dehv.plugin.zsh, which says how a command registers itself.
+# Loaded by ../bin/dehv, which says how a command registers itself.
 
 __dehv_commands+=(wall)
 __dehv_about[wall]='add wallpapers to a GitHub repo and sync it with a folder'

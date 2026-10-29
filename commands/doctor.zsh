@@ -1,15 +1,16 @@
 # dehv doctor: whether dehv is installed whole on this Mac.
-# Loaded by ../dehv.plugin.zsh, which says how a command registers itself.
+# Loaded by ../bin/dehv, which says how a command registers itself.
 
 __dehv_commands+=(doctor)
 __dehv_about[doctor]='check the install of dehv and what it needs'
 
 # ─── doctor ────────────────────────────────────────────────────────────────────
-# The same checks install.sh makes before installing, plus the files the
-# commands write in ~/.config/dehv. It only looks: install.sh repairs.
+# What dehv needs, whether the dehv in the PATH is this one and has its
+# completion, plus the files the commands write in ~/.config/dehv. It only
+# looks.
 __dehv.doctor.help() {
   __dehv.usage doctor "dehv doctor" \
-    "Check the install of dehv: its link, the rc file that loads it, what it needs and its files." \
+    "Check the install of dehv: the command in the PATH, its completion, what it needs and its files." \
     "|check everything, in a card; exit code 1 when something is wrong"
 }
 
@@ -17,31 +18,27 @@ __dehv.doctor() {
   [ $# -eq 0 ] || { __dehv.misuse doctor "unexpected argument '$1'"; return; }
 
   local b c d g y x r; __dehv.style
-  local link=$(__dehv.link) home=${__dehv_dir/#$HOME/~} rc row
+  local home=${__dehv_dir/#$HOME/~} row comp
   local -a f checks
 
   # Each check as ok|fail|warn, what, detail, and a heading line as head|name.
   checks+=("head|install")
-  if [ -L "$link" ] && [ "${link:A}" = "$__dehv_dir" ]; then
-    checks+=("ok|link|${link/#$HOME/~} → $home")
-  elif [ -L "$link" ] && [ ! -e "$link" ]; then
-    checks+=("fail|link|${link/#$HOME/~} is broken")
-  elif [ -L "$link" ]; then
-    checks+=("warn|link|points to ${${link:A}/#$HOME/~}, not the clone loaded")
-  elif [ -e "$link" ]; then
-    checks+=("fail|link|${link/#$HOME/~} is a real folder, not a link")
+  if (( ! $+commands[dehv] )); then
+    checks+=("warn|command|dehv is not in the PATH, only ${__dehv_bin/#$HOME/~}")
+  elif [ "${commands[dehv]:A:h:h}" = "$__dehv_dir" ]; then
+    checks+=("ok|command|${commands[dehv]/#$HOME/~}")
   else
-    checks+=("fail|link|${link/#$HOME/~} is missing")
+    checks+=("warn|command|the dehv in the PATH is ${commands[dehv]/#$HOME/~}, not this one")
   fi
-  if rc=$(__dehv.rc); then
-    checks+=("ok|rc file|${rc/#$HOME/~} loads it")
+  if [ "$(__dehv.from)" = homebrew ]; then
+    comp=${__dehv_dir%%/Cellar/*}/share/zsh/site-functions/_dehv
+    if [ -e "$comp" ]; then
+      checks+=("ok|completion|${comp/#$HOME/~}")
+    else
+      checks+=("fail|completion|${comp/#$HOME/~} is missing: brew link dehv")
+    fi
   else
-    checks+=("fail|rc file|no rc file has the dehv block")
-  fi
-  if [ -n "${_comps[dehv]}" ]; then
-    checks+=("ok|completion|dehv <tab>")
-  else
-    checks+=("warn|completion|not registered: compinit has not run")
+    checks+=("warn|completion|not from Homebrew: $home/completions goes in \$fpath by hand")
   fi
 
   checks+=("head|needs")
@@ -110,9 +107,7 @@ __dehv.doctor() {
   done
 
   if [ -t 1 ]; then
-    local foot="$ok/$total ok"
-    (( failed > 0 )) && foot="$home/install.sh repairs it · $foot"
-    __dehv.box doctor "$foot" "${lines[@]}"
+    __dehv.box doctor "$ok/$total ok" "${lines[@]}"
   else
     print -rl -- ${lines:#}
   fi

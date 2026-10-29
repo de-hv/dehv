@@ -1,6 +1,6 @@
 # dehv tap: the steps to release an app or a command line tool to my
 # homebrew-tap.
-# Loaded by ../dehv.plugin.zsh, which says how a command registers itself.
+# Loaded by ../bin/dehv, which says how a command registers itself.
 
 __dehv_commands+=(tap)
 __dehv_about[tap]='the steps to release to my homebrew-tap'

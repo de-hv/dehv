@@ -1,37 +1,24 @@
 # dehv hi: a small card about this Mac, like fastfetch's, but in a few lines.
-# Loaded by ../dehv.plugin.zsh, which says how a command registers itself.
+# Loaded by ../bin/dehv, which says how a command registers itself.
 
 __dehv_commands+=(hi)
 __dehv_about[hi]='a small card about this Mac'
 
 # ─── hi ────────────────────────────────────────────────────────────────────────
 # Everything it asks is local and quick (scutil, sw_vers, sysctl, route,
-# ipconfig, pmset), since the plugin shows it in the first terminal of the day
-# when hi.daily is true in the config. The day it was last shown is kept in
-# ~/.cache/dehv/hi.
+# ipconfig, pmset), so an rc file can run it in every new terminal.
 __dehv.hi.help() {
-  __dehv.usage hi "dehv hi [-d]" \
+  __dehv.usage hi "dehv hi" \
     "A small card about this Mac: the date, its name and macOS, uptime, IP and battery." \
-    "|show it" \
-    "-d, --daily|show it only if it was not shown yet today"
+    "|show it"
 }
 
 __dehv.hi() {
-  local daily=false arg
-  for arg in "$@"; do
-    case "$arg" in
-      -d|--daily) daily=true ;;
-      -*)         __dehv.misuse hi "unknown option '$arg'"; return ;;
-      *)          __dehv.misuse hi "unexpected argument '$arg'"; return ;;
-    esac
-  done
-
-  if [ "$daily" = true ]; then
-    [ -t 1 ] || return 0
-    local stamp="${XDG_CACHE_HOME:-$HOME/.cache}/dehv/hi" today=$(date +%F)
-    [ "$(cat "$stamp" 2>/dev/null)" = "$today" ] && return 0
-    mkdir -p "${stamp:h}" && print -r -- "$today" > "$stamp"
-  fi
+  case "$1" in
+    "") ;;
+    -*) __dehv.misuse hi "unknown option '$1'"; return ;;
+    *)  __dehv.misuse hi "unexpected argument '$1'"; return ;;
+  esac
 
   local b c d g y x r; __dehv.style
 
@@ -88,5 +75,5 @@ __dehv.hi() {
 
 # ─── completion ────────────────────────────────────────────────────────────────
 _dehv.hi() {
-  _arguments '(-d --daily)'{-d,--daily}'[show it only if it was not shown yet today]'
+  _message 'no arguments'
 }

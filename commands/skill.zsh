@@ -1,5 +1,5 @@
 # dehv skill: my skills and the agents that see them.
-# Loaded by ../dehv.plugin.zsh, which says how a command registers itself.
+# Loaded by ../bin/dehv, which says how a command registers itself.
 
 __dehv_commands+=(skill)
 __dehv_about[skill]='manage my skills and the agents that see them'

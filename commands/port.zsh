@@ -1,5 +1,5 @@
 # dehv port: what listens on a port, and freeing it.
-# Loaded by ../dehv.plugin.zsh, which says how a command registers itself.
+# Loaded by ../bin/dehv, which says how a command registers itself.
 
 __dehv_commands+=(port)
 __dehv_about[port]='inspect or free ports'

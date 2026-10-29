@@ -1,6 +1,6 @@
 # Helpers every dehv command shares: colours, help cards, output marks, the
 # arrow-key menus, and where the install and the config are. Loaded first by
-# dehv.plugin.zsh, and by install.sh.
+# bin/dehv, and by completions/_dehv.
 
 # ─── style ─────────────────────────────────────────────────────────────────────
 # Bold, and One Dark's grey, red, green, yellow and cyan: in 24-bit colour when
@@ -26,18 +26,8 @@ __dehv.style() {
 }
 
 # ─── install ───────────────────────────────────────────────────────────────────
-# The link install.sh makes to the clone, so the rc file names one path
-# wherever the clone is.
-__dehv.link() {
-  print -r -- "${XDG_DATA_HOME:-$HOME/.local/share}/dehv"
-}
-
-# The block install.sh writes in the rc file, between these two lines.
-__dehv_mark_begin='# >>> dehv >>>'
-__dehv_mark_end='# <<< dehv <<<'
-
 # What dehv needs, as command|where it comes from|required or optional|what
-# for. Checked by install.sh and `dehv doctor`; zsh itself is checked apart.
+# for. Checked by `dehv doctor`; zsh itself is checked apart.
 __dehv_needs=(
   "git|Command Line Tools|required|"
   "curl|macOS|required|"
@@ -57,36 +47,45 @@ __dehv.has() {
   return 0
 }
 
-# The version in the clone at $1, the one loaded without it.
+# The version of the dehv running.
 __dehv.version() {
-  local file="${1:-$__dehv_dir}/VERSION"
+  local file="$__dehv_dir/VERSION"
   [ -f "$file" ] && print -r -- "$(<"$file")"
 }
 
-# The rc file that has the dehv block: the one install.sh noted in the config,
-# or else the first of the usual ones that has it. Fails when none does.
-__dehv.rc() {
-  local file z=${ZDOTDIR:-$HOME}
-  for file in "$(__dehv.config install.rc)" "$z/.zshrc" "$z/.zprofile" "$z/.zshenv"; do
-    [ -n "$file" ] && [ -f "$file" ] && grep -qxF "$__dehv_mark_begin" "$file" 2>/dev/null || continue
-    print -r -- "$file"
-    return 0
-  done
-  return 1
+# Where the dehv running comes from: homebrew (a keg in the Cellar), clone (a
+# git clone of its own) or folder (anything else).
+__dehv.from() {
+  if [[ "$__dehv_dir" == */Cellar/dehv/* ]]; then
+    print -r -- homebrew
+  elif [ -e "$__dehv_dir/.git" ]; then
+    print -r -- clone
+  else
+    print -r -- folder
+  fi
+}
+
+# The branch and commit of the clone, as "main · a1c9e2f"; nothing outside
+# one. Only a .git of its own counts: git alone would climb to the first repo
+# above, and Homebrew's prefix is one.
+__dehv.rev() {
+  [ "$(__dehv.from)" = clone ] || return 0
+  local rev branch
+  rev=$(git -C "$__dehv_dir" log -1 --format=%h 2>/dev/null) || return 0
+  branch=$(git -C "$__dehv_dir" branch --show-current 2>/dev/null)
+  print -r -- "${branch:+$branch · }$rev"
 }
 
 # ─── config ────────────────────────────────────────────────────────────────────
 # This Mac's settings, in ~/.config/dehv/config, shaped like a git config as
 # the profiles of `dehv as`:
 #
-#   [hi]
-#   	daily = true
 #   [skill]
 #   	dir = ~/Documents/dev/skills
-#   [install]
-#   	rc = ~/.zshrc
+#   [tap]
+#   	owner = de-hv
 #
-# install.sh writes hi.daily and install.rc; skill.dir is mine to set.
+# Every key is mine to set, with git config -f.
 __dehv.config.file() {
   print -r -- "${XDG_CONFIG_HOME:-$HOME/.config}/dehv/config"
 }

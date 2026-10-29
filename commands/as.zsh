@@ -1,5 +1,5 @@
 # dehv as: my git profiles, and committing as one of them.
-# Loaded by ../dehv.plugin.zsh, which says how a command registers itself.
+# Loaded by ../bin/dehv, which says how a command registers itself.
 
 __dehv_commands+=(as)
 __dehv_about[as]='commit as one of my git profiles'

@@ -1,5 +1,5 @@
 # dehv branches: the git branches that can go, and deleting the ones I tick.
-# Loaded by ../dehv.plugin.zsh, which says how a command registers itself.
+# Loaded by ../bin/dehv, which says how a command registers itself.
 
 __dehv_commands+=(branches)
 __dehv_about[branches]='delete the git branches already merged or gone'

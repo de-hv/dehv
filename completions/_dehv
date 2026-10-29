@@ -1,6 +1,20 @@
 #compdef dehv
 # The completion of dehv: the commands with what they are, and past them the
-# command's own _dehv.<command>, defined in its file in commands/.
+# command's own _dehv.<command>, defined in its file in commands/. dehv is an
+# executable, so this shell has none of them: they are loaded here, once per
+# shell, from the folder of the dehv in the PATH.
+
+if (( ! ${+__dehv_about} )); then
+  local dir=${commands[dehv]:A:h:h} file
+  [ -f "$dir/lib.zsh" ] || return 1
+  typeset -g __dehv_dir=$dir
+  typeset -ga __dehv_commands=()
+  typeset -gA __dehv_about=()
+  source "$dir/lib.zsh"
+  for file in "$dir"/commands/*.zsh(N); do
+    source "$file"
+  done
+fi
 
 if (( CURRENT == 2 )); then
   local -a values

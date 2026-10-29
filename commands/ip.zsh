@@ -1,5 +1,5 @@
 # dehv ip: my local or public IP address.
-# Loaded by ../dehv.plugin.zsh, which says how a command registers itself.
+# Loaded by ../bin/dehv, which says how a command registers itself.
 
 __dehv_commands+=(ip)
 __dehv_about[ip]='print my local IP address'

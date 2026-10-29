@@ -1,133 +1,74 @@
 # dehv
 
-My own command line tool for macOS: every personal function lives behind this one name, as `dehv <command> [options] [args]`, so none can clash with a system command. It is plain zsh: a plugin file, a library of helpers and one file per command, loaded into the shell by one line in the rc file.
+My own command line tool for macOS: every personal function lives behind this one name, as `dehv <command> [options] [args]`, so none can clash with a system command. It is plain zsh: an executable, a library of helpers and one file per command, installed with Homebrew.
 
 ## Contents
 
 - [Install](#install)
 - [What it needs](#what-it-needs)
-- [Update, move and uninstall](#update-move-and-uninstall)
 - [Where things are](#where-things-are)
 - [Commands](#commands)
 - [Config](#config)
 - [In the repo](#in-the-repo)
+- [Working on it](#working-on-it)
 - [Adding a command](#adding-a-command)
 
 ## Install
 
-Clone it wherever you like, and run the installer from the clone:
+From my Homebrew tap:
 
 ```sh
-git clone <this repo> ~/code/dehv
-~/code/dehv/install.sh
+brew install de-hv/tap/dehv
 ```
 
-Nothing depends on that folder. The installer does two things:
-
-1. **A link**, `~/.local/share/dehv`, to the folder the installer is in: the clone, wherever it is.
-2. **A block in the rc file**, `~/.zshrc` (created if there is none), that loads dehv through that link:
-
-   ```zsh
-   # >>> dehv >>>
-   # Loads dehv through its link; the installer in its clone writes and removes this.
-   [ -f "$HOME/.local/share/dehv/dehv.plugin.zsh" ] && source "$HOME/.local/share/dehv/dehv.plugin.zsh"
-   # <<< dehv <<<
-   ```
-
-   zsh only runs what its startup files tell it to, so a function like `dehv` always needs a line there. It names the link and never the clone, so moving the clone only changes the link. The two marker lines are how update and uninstall find the block again without touching anything else in the file.
-
-Then it asks whether to show the `dehv hi` card in the first terminal of the day, and checks that a new zsh loads dehv. `exec zsh` loads it in the terminal you are in.
-
-Run without arguments, `install.sh` shows what is installed and a menu with what can be done from that state:
-
-```
- ❯❯❯ dehv  installer · v0.1.0
-
-   status   ● installed
-   link     ~/.local/share/dehv → ~/code/dehv  this folder
-   loads    ~/.zshrc
-   needs    ✓ all there
-   remote   3 new commits
-
- ❯ Update     pull the 3 new commits
-   Reinstall  write the link and the block again
-   Uninstall  remove the link and the block
-   Quit
-
- ↑↓ move · enter choose · q quit
-```
-
-| State | Menu |
-|---|---|
-| not installed | Install |
-| installed from this folder | Update, Reinstall, Uninstall |
-| installed from another clone | Relink (to this one), Update (that one), Uninstall |
-| half installed (link or block missing, or the clone gone) | Repair, Uninstall |
-
-The same, without the menu:
+It is a plain executable: brew links `dehv` into its `bin` and the completion into its `site-functions`, so nothing goes in `~/.zshrc`. A new terminal completes `dehv <tab>` if the rc file already loads Homebrew's completions, as Homebrew's own setup does.
 
 | Command | Does |
 |---|---|
-| `./install.sh install` | link `~/.local/share/dehv` to this folder and write the block |
-| `./install.sh update` | `git pull --ff-only` in the clone the link points to, listing the commits it brought |
-| `./install.sh uninstall` | remove the link and the block, after a `[y/N]`; then asks whether to delete `~/.config/dehv` and `~/.cache/dehv` too (no by default). The clone stays |
-| `./install.sh relink` | point the link to this folder |
-| `./install.sh status` | what is installed; exit code 1 when it is not |
-| `-y`, `--yes` | no questions: yes to what is required, skip what is optional |
-| `--rc <file>` | write the block in that file instead of `~/.zshrc`, for this run |
-| `--greeting`, `--no-greeting` | show the `dehv hi` card in the first terminal of the day, or not |
+| `brew upgrade dehv` | update it |
+| `brew uninstall dehv` | uninstall it; `~/.config/dehv` stays |
 
-When the output is not a terminal there is no menu: `./install.sh` alone is `status`.
-
-**When `~/.zshrc` is a link**, as a dotfiles repo leaves it, the block is written through it, so the link stays a link and the block lands in the repo. That is safe to commit: it checks for `dehv.plugin.zsh` before sourcing it, so a Mac without dehv skips it. A block already in another file (`~/.zshrc.local` or an earlier `--rc`) moves to `~/.zshrc` on install.
+To see the `dehv hi` card in every new terminal, add `dehv hi` to `~/.zshrc` by hand.
 
 ## What it needs
 
-Checked before anything is touched; nothing is installed without asking.
+`dehv doctor` checks it, with exit code 1 when something required is missing.
 
-| Needs | From | When it is missing |
-|---|---|---|
-| zsh 5.8 or newer | macOS | stops |
-| `git` | Apple's Command Line Tools | offers `xcode-select --install` and waits for the macOS dialog to finish |
-| `curl`, `lsof`, `pbcopy`, `osascript`, `sips`, `networksetup` | macOS | stops: they come with every Mac |
-| `gh` (optional) | Homebrew | offers `brew install gh`, or to skip it; without Homebrew it shows https://cli.github.com and goes on. Only `dehv wall` uses it, to choose ssh or https for `owner/name` urls |
+| Needs | From |
+|---|---|
+| zsh 5.8 or newer | macOS |
+| `git` | Apple's Command Line Tools (`xcode-select --install`) |
+| `curl`, `lsof`, `pbcopy`, `osascript`, `sips`, `networksetup` | macOS: they come with every Mac |
+| `gh` (optional) | Homebrew (`brew install gh`). Only `dehv wall` uses it, to choose ssh or https for `owner/name` urls |
 
 `/usr/bin/git` exists on every Mac, but until the Command Line Tools are installed it only offers to install them, so git counts once `xcode-select -p` answers.
-
-## Update, move and uninstall
-
-- **Update**: `install.sh` in the menu, or `./install.sh update`.
-- **Move the clone**: move it, then run `install.sh` from its new folder and pick Repair (or `./install.sh relink`). The rc file does not change.
-- **Two clones**: the link decides which one loads. `install.sh` from the other one says so and offers Relink.
-- **Uninstall**: `install.sh` and Uninstall, or `./install.sh uninstall`. Open terminals keep `dehv` until `exec zsh`.
 
 ## Where things are
 
 | Path | What |
 |---|---|
-| the clone | the code, wherever it was cloned |
-| `~/.local/share/dehv` | the link to the clone (`$XDG_DATA_HOME/dehv` when set) |
-| `~/.zshrc`, or the one given with `--rc` | the block that loads dehv |
-| `~/.config/dehv/config` | settings: the greeting, the skills folder, the rc file in use (see [Config](#config)) |
+| `$(brew --prefix)/bin/dehv` | the command, a link to the formula's `libexec/bin/dehv` |
+| `$(brew --prefix)/opt/dehv/libexec` | `lib.zsh`, `commands/` and `VERSION` |
+| `$(brew --prefix)/share/zsh/site-functions/_dehv` | the completion |
+| `~/.config/dehv/config` | settings: the skills folder and the owner of my tap (see [Config](#config)) |
 | `~/.config/dehv/profiles` | my git profiles for `dehv as` (`chmod 600`) |
 | `~/.config/dehv/walls` | my wallpaper repos for `dehv wall` (`chmod 600`) |
-| `~/.cache/dehv/hi` | the day `dehv hi -d` last showed its card |
 
-`dehv where` shows the first three:
+`dehv where` shows the first ones:
 
 ```
 $ dehv where
-╭─ dehv where ─────────────────────────────╮
-│ link       ~/.local/share/dehv           │
-│ points to  ~/code/dehv                   │
-│ loaded by  ~/.zshrc                      │
-│ version    0.1.0 · main · a1c9e2f        │
-╰──────────────────────────────────────────╯
+╭─ dehv where ──────────────────────────────────────────────────╮
+│ command  /opt/homebrew/bin/dehv                               │
+│ files    /opt/homebrew/Cellar/dehv/0.2.0/libexec              │
+│ from     Homebrew · brew upgrade dehv                         │
+│ version  0.2.0                                                │
+╰───────────────────────────────────────────────────────────────╯
 
-$ cd "$(dehv where)"      # piped, only the clone's path
+$ cd "$(dehv where)"      # piped, only the folder's path
 ```
 
-`dehv doctor` checks all of it: the link, the block, the completion, what dehv needs and the permissions of its files, with exit code 1 when something is wrong. It only looks; `install.sh` repairs.
+`dehv doctor` checks all of it: that the `dehv` in the PATH is the one running, its completion, what dehv needs and the permissions of its files, with exit code 1 when something is wrong. It only looks.
 
 ## Commands
 
@@ -138,7 +79,7 @@ It is shaped like a regular CLI: `dehv` alone prints a short usage, a command th
 ```
 $ dehv
 ╭─────────────────────────────────────────────────────────────────────╮
-│ ❯❯❯ dehv  my own desktop toolkit            v0.1.0 · main · efb1a5a │
+│ ❯❯❯ dehv  my own desktop toolkit            v0.2.0 · main · efb1a5a │
 ├─────────────────────────────────────────────────────────────────────┤
 │ as        commit as one of my git profiles                          │
 │ branches  delete the git branches already merged or gone            │
@@ -151,7 +92,7 @@ $ dehv
 │ wall      add wallpapers to a GitHub repo and sync it with a folder │
 │ where     show where dehv is installed                              │
 ├─────────────────────────────────────────────────────────────────────┤
-│ dehv help <command> its options      doctor ✓ all good  greeting on │
+│ dehv help <command> its options                    doctor ✓ all good │
 ╰─────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -167,7 +108,7 @@ $ dehv port
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
-The card lists every command and what it is for, between a header with the version, branch and commit of the clone and a footer with whether `dehv doctor` passes and whether the greeting is on; in a narrow terminal those right-hand parts go first. The options of each command are in `dehv help <command>`, a card of its own that piped starts with the usage line a misuse repeats.
+The card lists every command and what it is for, between a header with the version (and the branch and commit, when it runs from a clone) and a footer with whether `dehv doctor` passes; in a narrow terminal those right-hand parts go first. The options of each command are in `dehv help <command>`, a card of its own that piped starts with the usage line a misuse repeats.
 
 No card is wider than the terminal. In a narrow one each description of `dehv` is cut to fit, with an `…`. In a command's help the descriptions wrap beside their options instead, or under them when that leaves too little room. Every other card (`doctor`, `where`, the lists) cuts its lines to fit.
 
@@ -236,9 +177,8 @@ old    ●       ○        ! broken link
 | `dehv branches` | fetch with `--prune`, then tick which local branches to delete: those merged into the default branch, or gone (their remote deleted, as a squash-merged PR leaves them), come ticked; unmerged ones are listed unticked. Never the default one nor the one checked out |
 | `dehv branches -l` | only list them, with why each can go (`--list`) |
 | `dehv hi` | a small card: the date, this Mac's name and macOS, uptime, IP and battery |
-| `dehv hi -d` | the same, only if not shown yet today (`--daily`); the greeting runs it, so it shows in the first terminal of the day |
-| `dehv where` | where dehv is installed: the link, the clone it points to, the rc file that loads it and the version; piped, only the clone's path |
-| `dehv doctor` | check the link, the block, the completion, what dehv needs and its files; exit code 1 when something is wrong |
+| `dehv where` | where dehv is installed: the command, the folder with its files, where it comes from and the version; piped, only the folder's path |
+| `dehv doctor` | check the command in the PATH, its completion, what dehv needs and its files; exit code 1 when something is wrong |
 
 ### dehv as
 
@@ -389,41 +329,42 @@ dehv wall -s                                      # push the wallpapers I droppe
 dehv tap -c                                       # in an app's repo: the steps to release it to my tap
 ```
 
-Tab completion works at every level: `dehv <tab>` lists the commands and `dehv <command> -<tab>` its options with what they do. `dehv skill <tab>` offers the names of my skills and `-t <tab>` the agents; `dehv wall -t <tab>`, `-u`, `-n` and `-r` my wallpaper repos. It registers itself whether the block is read before or after `compinit`.
+Tab completion works at every level: `dehv <tab>` lists the commands and `dehv <command> -<tab>` its options with what they do. `dehv skill <tab>` offers the names of my skills and `-t <tab>` the agents; `dehv wall -t <tab>`, `-u`, `-n` and `-r` my wallpaper repos. It loads the commands' files the first time it is asked, from the folder of the `dehv` in the PATH.
 
 ## Config
 
 `~/.config/dehv/config`, in git's config format like the profiles. Every key is optional:
 
 ```ini
-[hi]
-	daily = true                   # the dehv hi card in the first terminal of the day
 [skill]
 	dir = ~/Documents/dev/skills   # where dehv skill keeps the skills
-[install]
-	rc = ~/.zshrc                  # the file with the block; install.sh writes it
 [tap]
 	owner = de-hv                  # the GitHub owner of my homebrew-tap and its apps, for dehv tap
 ```
 
-`install.sh` writes `hi.daily` and `install.rc`; `git config -f ~/.config/dehv/config skill.dir ~/somewhere` sets the rest.
+`git config -f ~/.config/dehv/config skill.dir ~/somewhere` sets one.
 
 ## In the repo
 
 ```
 dehv/
-├── dehv.plugin.zsh      the entry point: loads the rest, dispatches, help, completion, greeting
+├── bin/dehv             the executable: loads the rest, dispatches, help
 ├── lib.zsh              helpers every command shares (cards, menus, output, config, install paths)
-├── commands/*.zsh       one file per command (as, branches, doctor, hi, ip, port, skill, wall, where)
+├── commands/*.zsh       one file per command (as, branches, doctor, hi, ip, port, skill, tap, wall, where)
 ├── completions/_dehv    the completion of dehv, found by compinit through $fpath
-├── install.sh           install, update, uninstall, relink and status, from wherever the clone is
 ├── VERSION
 └── docs/screenshots/
 ```
 
+## Working on it
+
+In the clone, `./bin/dehv <command>` runs the code there, whatever Homebrew installed: it loads `lib.zsh` and `commands/` from its own folder, and `dehv where` says `from a clone`, with the branch and commit. Put the clone's `bin` first in the PATH to call it as `dehv`.
+
+A release is a tag whose version is the one in `VERSION`, then the `url` and `sha256` of `Formula/dehv.rb` in my tap: `dehv tap -s` prints the steps.
+
 ## Adding a command
 
-A new command is one new file, `commands/<command>.zsh`: `dehv.plugin.zsh` loads every file there, in alphabetical order (also their order in `dehv help`), so nothing else changes. The file:
+A new command is one new file, `commands/<command>.zsh`: `bin/dehv` loads every file there, in alphabetical order (also their order in `dehv help`), so nothing else changes. The file:
 
 1. registers the command: `__dehv_commands+=(<command>)`, and what it is for, the line `dehv` and `dehv <tab>` show, in `__dehv_about[<command>]`,
 2. defines `__dehv.<command>` and its help in `__dehv.<command>.help`, a call to `__dehv.usage` with the usage line errors repeat, what the command is for and a row per way to call it,
