@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.1
 
 - `dehv tap` asks cask or formula from a list, and `dehv tap cask` and `dehv tap formula` go straight to one guide: the steps to release a new version, modelled on inlay and dehv, from raising `VERSION` to `brew upgrade`, grouped by where they run and always with generic names. `-c`, `-f`, `-s`, filling in names and versions, the formula from a binary and `brew create` are gone.
 
