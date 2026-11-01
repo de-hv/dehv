@@ -285,37 +285,39 @@ $ dehv wall -s
 
 ### dehv tap
 
-`dehv tap` only prints: the commands to release an app or a command line tool to my homebrew-tap, `de-hv/homebrew-tap`, to copy and run by hand. An app (`.app`) is a cask, in `Casks/<app>.rb`, released as a zip; a command line tool is a formula, in `Formula/<name>.rb`, released as a tarball of its binary or as the tag's source, which brew builds.
+`dehv tap` only prints: the commands to release a new version to my homebrew-tap, `de-hv/homebrew-tap`, to copy and run by hand, with generic names in yellow. An app (`.app`) is a cask, in `Casks/<name>.rb`, released as a zip like inlay; a command line tool is a formula, in `Formula/<name>.rb`, released as the tag's source like dehv.
 
 | Command | Does |
 |---|---|
-| `dehv tap` | the steps for both, with `<placeholders>` in yellow |
-| `dehv tap -c [<App> <version>]` | only the cask's, filled in: zip with `ditto`, its `shasum -a 256`, upload with `gh release create`, the `version` and `sha256` of the `.rb`, push, then `brew audit` and `brew upgrade`. Without them, the app is the one `build/*.app` and the version `./VERSION`, when the folder has them (`--cask`) |
-| `dehv tap -f [<name> <version>]` | only the formula's, filled in: pack the binary with `tar`, its sha256, upload it, the `url` and `sha256` of the `.rb`, push, then `brew audit`, `brew install` and `brew test`. Without them, the name is the repo's folder and the version `./VERSION` (`--formula`) |
-| `dehv tap -s` | the formula's, built by brew from the tag's source: `git tag`, and the sha256 of GitHub's tarball of it, through `curl` (`--source`) |
+| `dehv tap` | asks which of the two, from a list |
+| `dehv tap cask` | the cask's: raise the version, build the app, zip it with `ditto`, `gh release create`, its `shasum -a 256`, the `version` and `sha256` of the `.rb`, push, then `brew upgrade` |
+| `dehv tap formula` | the formula's: raise the version, `git tag`, the sha256 of GitHub's tarball of it through `curl`, the `url` and `sha256` of the `.rb`, push, then `brew upgrade` and `brew test` |
 
-Each ends with the `brew create` that starts a new one from its url. Piped, they come as a script whose notes and `.rb` lines are comments. The GitHub owner of the tap and of the apps is `tap.owner` in the [config](#config), `de-hv` without it.
+Piped, they come as a script whose notes and `.rb` lines are comments; `dehv tap` alone needs a terminal to ask on. The GitHub owner of the tap and of the apps is `tap.owner` in the [config](#config), `de-hv` without it.
 
 ```
-$ dehv tap -c Inlay 0.2.0
-dehv tap · the steps to release to de-hv/homebrew-tap
+$ dehv tap formula
+dehv tap formula · a new version of a command line tool, like dehv
 
-Cask · an app (.app), in Casks/inlay.rb
-  1 zip the app
-    ditto -c -k --keepParent build/Inlay.app build/Inlay-0.2.0.zip
-  2 its sha256
-    shasum -a 256 build/Inlay-0.2.0.zip
-  3 upload it, where the cask's url points
-    gh release create v0.2.0 build/Inlay-0.2.0.zip
-  4 in homebrew-tap, Casks/inlay.rb
-    version "0.2.0"
-    sha256 "<the sha256 of 2>"
+In the repo · <name>
+  1 raise the version: edit VERSION, and CHANGELOG if it has one
+    git commit -am "<name> <version>" && git push
+  2 tag it: this is what brew downloads
+    git tag v<version> && git push origin v<version>
+  3 its sha256: of the tarball GitHub makes of the tag
+    curl -sL https://github.com/de-hv/<name>/archive/refs/tags/v<version>.tar.gz | shasum -a 256
+
+In homebrew-tap
+  4 in Formula/<name>.rb, these two lines
+    url "https://github.com/de-hv/<name>/archive/refs/tags/v<version>.tar.gz"
+    sha256 "<sha256>"
   5 push it
-    git commit -am "inlay 0.2.0" && git push
+    git commit -am "<name> <version>" && git push
+
+On this Mac
   6 check it
-    brew update && brew audit --cask de-hv/tap/inlay
-    brew upgrade --cask de-hv/tap/inlay
-  ...
+    brew update && brew upgrade de-hv/tap/<name>
+    brew test de-hv/tap/<name>
 ```
 
 ### Examples
@@ -326,7 +328,7 @@ dehv branches                                     # clean up after merged PRs
 dehv as acme -s -a                                # commit as acme here and fix the last commit
 dehv skill notes -l                               # start a skill and tick the agents that see it
 dehv wall -s                                      # push the wallpapers I dropped in the folder
-dehv tap -c                                       # in an app's repo: the steps to release it to my tap
+dehv tap cask                                     # the steps to release a new version of an app to my tap
 ```
 
 Tab completion works at every level: `dehv <tab>` lists the commands and `dehv <command> -<tab>` its options with what they do. `dehv skill <tab>` offers the names of my skills and `-t <tab>` the agents; `dehv wall -t <tab>`, `-u`, `-n` and `-r` my wallpaper repos. It loads the commands' files the first time it is asked, from the folder of the `dehv` in the PATH.
@@ -360,7 +362,7 @@ dehv/
 
 In the clone, `./bin/dehv <command>` runs the code there, whatever Homebrew installed: it loads `lib.zsh` and `commands/` from its own folder, and `dehv where` says `from a clone`, with the branch and commit. Put the clone's `bin` first in the PATH to call it as `dehv`.
 
-A release is a tag whose version is the one in `VERSION`, then the `url` and `sha256` of `Formula/dehv.rb` in my tap: `dehv tap -s` prints the steps.
+A release is a tag whose version is the one in `VERSION`, then the `url` and `sha256` of `Formula/dehv.rb` in my tap: `dehv tap formula` prints the steps.
 
 ## Adding a command
 
