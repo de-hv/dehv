@@ -48,7 +48,7 @@ To see the `dehv hi` card in every new terminal, add `dehv hi` to `~/.zshrc` by 
 `dehv` in a terminal opens a full-screen hub: the tools on the left, the one selected on the right, what just happened in the status line and the keys that matter in the footer.
 
 ```
- dehv  ~/dev/dehv · main · as personal                                          v1.0.0
+ dehv  ~/dev/dehv · main · as personal                                          v1.0.2
 ──────────────────────────────────────────────────────────────────────────────────────
  1 Ports        3 │ Ports · 3 listening
  2 Branches     2 │   PORT  PROGRAM   PID   USER
@@ -243,8 +243,8 @@ Go 1.26 or newer (`brew install go`).
 A tag is a release: the workflow builds dehv for both Macs, creates the GitHub release with the CHANGELOG's notes for that version and commits the updated cask to `de-hv/homebrew-tap`. It needs the `HOMEBREW_TAP_TOKEN` secret, a token that can push to the tap.
 
 ```sh
-git commit -am "dehv 1.0.1" && git push   # with the CHANGELOG's ## 1.0.1
-git tag v1.0.1 && git push origin v1.0.1
+git commit -am "dehv 1.0.2" && git push   # with the CHANGELOG's ## 1.0.2
+git tag v1.0.2 && git push origin v1.0.2
 ```
 
 `goreleaser release --snapshot --clean` tries it locally, into `dist/`. `dehv tap goreleaser` prints these steps.

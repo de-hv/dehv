@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- The spinner no longer flickers, as it did through the long steps of `dehv wall -s` inside tmux: each frame is drawn in one write and the line cleared after it, never before, and the terminal's colours are detected once per spinner instead of on every frame, which inside tmux ran `tmux info` every 80 ms.
+
 ## 1.0.1
 
 - The cask installs again: its post-install step, which takes the binary out of macOS's quarantine, is written in Homebrew's install steps DSL (`run` with `{{staged_path}}`) instead of Ruby, which Homebrew refused with `undefined local variable or method 'staged_path'`.

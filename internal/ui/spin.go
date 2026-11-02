@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"io"
 	"sync"
 	"time"
 )
@@ -14,6 +15,7 @@ var frames = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "�
 type Spinner struct {
 	mu   sync.Mutex
 	msg  string
+	out  io.Writer // its colours detected once: inside tmux that runs `tmux info`
 	stop chan struct{}
 	done chan struct{}
 }
@@ -24,6 +26,7 @@ func Spin(msg string) *Spinner {
 	if !IsTTY(Stderr) {
 		return s
 	}
+	s.out = newErrWriter()
 	s.stop, s.done = make(chan struct{}), make(chan struct{})
 	go s.loop()
 	return s
@@ -49,15 +52,13 @@ func (s *Spinner) loop() {
 			s.mu.Lock()
 			msg := s.msg
 			s.mu.Unlock()
-			lineErr(Accent.Render(frames[i%len(frames)]) + " " + Dim.Render(msg+"…"))
+			// In one write, cleared after drawing: the line is never blank
+			// between frames.
+			line := Cut(Accent.Render(frames[i%len(frames)])+" "+Dim.Render(msg+"…"), Width())
+			fmt.Fprint(s.out, "\r"+line+"\x1b[K")
 			drawn = true
 		}
 	}
-}
-
-func lineErr(s string) {
-	fmt.Fprint(Stderr, "\r\x1b[K")
-	Eprint(Cut(s, Width()))
 }
 
 // Eprint prints to stderr without a newline, downsampling colours.
