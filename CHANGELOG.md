@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- The cask installs again: its post-install step, which takes the binary out of macOS's quarantine, is written in Homebrew's install steps DSL (`run` with `{{staged_path}}`) instead of Ruby, which Homebrew refused with `undefined local variable or method 'staged_path'`.
+
 ## 1.0.0
 
 - dehv is a Go binary: the same commands with the same options, one file each on Cobra and Fang, and their logic in `internal/core`, which the hub shares. The zsh (`bin/dehv`, `lib.zsh`, `commands/`) is gone.

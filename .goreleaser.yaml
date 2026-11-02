@@ -51,8 +51,8 @@ homebrew_casks:
     hooks:
       post:
         # The binary is not notarized: without this, macOS refuses to run it
-        # the first time.
+        # the first time. Homebrew's install steps are a DSL of their own, not
+        # Ruby: paths go as Homebrew templates, {{staged_path}}, written here
+        # through GoReleaser's own template so it leaves them alone.
         install_steps: |
-          if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/dehv"]
-          end
+          run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ "{{staged_path}}" }}/dehv"], must_succeed: false
