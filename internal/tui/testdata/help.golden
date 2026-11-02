@@ -1,0 +1,30 @@
+ dehv  ~/dev/dehv · main · as personal                                                       v1.0.0
+──────────────────────╭──────────────────────────────────────────────────────╮──────────────────────
+ 1 Ports   2 Branches │                                                      │
+ Ports · 3 listening  │  Keys                                                │
+   PORT  PROGRAM   PID│                                                      │
+ ▌ 3000  node      482│  Ports                                               │
+   5173  vite      490│    x             kill                                │
+   5432  postgres  612│    /             filter                              │
+                      │    r             refresh                             │
+                      │                                                      │
+                      │  everywhere                                          │
+                      │    ← / h         focus the tools                     │
+                      │    ←→ / h l      with the tools focused: choose one  │
+                      │    ↓ / j / enter with the tools focused: back to it  │
+                      │    1-7           jump to a tool                      │
+                      │    tab / ]       next tool                           │
+                      │    shift+tab / [ previous tool                       │
+                      │    ↑↓ / j k      move                                │
+                      │    /             filter                              │
+                      │    esc           close, clear the filter             │
+                      │    r             read it again                       │
+                      │    m             messages                            │
+                      │    ctrl+z        suspend                             │
+                      │    q             quit                                │
+                      │                                                      │
+                      │  esc close                                           │
+                      │                                                      │
+──────────────────────╰──────────────────────────────────────────────────────╯──────────────────────
+
+ x kill ⋅ / filter ⋅ r refresh ⋅ ← tools ⋅ 1-7 jump ⋅ q quit ⋅ ? help
