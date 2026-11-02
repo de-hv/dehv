@@ -6,8 +6,8 @@
  4 Skills         │      acme      David Higuita  david@acme.com
  5 Walls          │
  6 Machine        │
- 7 Doctor       ✓ │
-                  │
+ 7 Tap            │
+ 8 Doctor       ✓ │
                   │
                   │
                   │
@@ -17,4 +17,4 @@
                   │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
- ↑↓ choose ⋅ → open ⋅ 1-7 jump ⋅ q quit ⋅ ? help
+ ↑↓ choose ⋅ → open ⋅ 1-8 jump ⋅ q quit ⋅ ? help

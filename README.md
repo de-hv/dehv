@@ -56,10 +56,11 @@ To see the `dehv hi` card in every new terminal, add `dehv hi` to `~/.zshrc` by 
  4 Skills       4 │   5173  vite      4907  david
  5 Walls          │   5432  postgres  612   david
  6 Machine        │
- 7 Doctor       ✓ │
+ 7 Tap            │
+ 8 Doctor       ✓ │
 ──────────────────────────────────────────────────────────────────────────────────────
  ✓ killed node (4821) on port 3000
- x kill ⋅ / filter ⋅ r refresh ⋅ ← tools ⋅ 1-7 jump ⋅ q quit ⋅ ? help
+ x kill ⋅ / filter ⋅ r refresh ⋅ ← tools ⋅ 1-8 jump ⋅ q quit ⋅ ? help
 ```
 
 | Tool | Shows | Keys |
@@ -70,7 +71,8 @@ To see the `dehv hi` card in every new terminal, add `dehv hi` to `~/.zshrc` by 
 | 4 Skills | my skills, a column per installed agent, `!` on those without description or broken | `enter` tick the agents to link it into, `e` edit its `SKILL.md` in `$EDITOR`, `n` new, `d` trash, `R` restore |
 | 5 Walls | my wallpaper repos, `●` on the one in use | `s` sync, `S` sync all, `a` add an image by url, `o` open the folder, `u` use, `n` new, `e` edit, `d` forget |
 | 6 Machine | the `dehv hi` card and this Mac's addresses | `c` copy the local IP, `p` ask the public one, `C` copy it |
-| 7 Doctor | `dehv doctor`, `dehv where` and the release steps of `dehv tap` | `t` the next kind of release |
+| 7 Tap | the steps of `dehv tap` to release to my homebrew-tap, a kind at a time | `↑↓` choose a command, `c` copy it, `t` the next kind (`T` the previous) |
+| 8 Doctor | `dehv doctor` and `dehv where` | `j k` scroll |
 
 The focus is either on the tools or on the panel. `←` or `h` moves it to the tools: there `↑↓` or `j k` choose one, its panel following along, and `→`, `l` or `enter` give the focus back to it. In the row of tabs of a narrower terminal it is `←→` to choose and `↓` or `enter` to go back. The bar `▌` marks where the focus is, and panel keys only work with the focus on the panel.
 

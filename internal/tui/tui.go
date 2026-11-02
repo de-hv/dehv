@@ -132,7 +132,7 @@ func newModel(ctx context.Context) model {
 		ctx: ctx,
 		panels: []panel{
 			newPorts(), newBranches(), newProfiles(), newSkills(),
-			newWalls(ctx), newMachine(), newDoctor(),
+			newWalls(ctx), newMachine(), newTap(), newDoctor(),
 		},
 		spin: sp,
 	}
@@ -408,11 +408,11 @@ func (m model) nav() string {
 		// Each tab starts with a column for the focus bar.
 		switch {
 		case i == m.active:
-			tabs = append(tabs, m.lit(strings.TrimSpace(num(i)+" "+p.name())+" "))
+			tabs = append(tabs, m.lit(strings.TrimSpace(num(i)+" "+p.name())))
 		case i < 9:
-			tabs = append(tabs, " "+ui.Dim.Render(num(i))+" "+p.name()+" ")
+			tabs = append(tabs, " "+ui.Dim.Render(num(i))+" "+p.name())
 		default:
-			tabs = append(tabs, " "+p.name()+" ")
+			tabs = append(tabs, " "+p.name())
 		}
 	}
 	row := strings.Join(tabs, " ")

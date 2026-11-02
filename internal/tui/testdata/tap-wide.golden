@@ -1,0 +1,24 @@
+ dehv  ~/dev/dehv · main · as personal                                                                           v1.0.0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ 1 Ports        3 │ Tap · goreleaser · a new version of a Go tool, like dehv
+ 2 Branches     2 │  [goreleaser]  cask   formula   t next
+ 3 Profiles       │
+ 4 Skills         │  In the repo · <name>
+ 5 Walls          │   1 raise the version: CHANGELOG, and VERSION if it has one
+ 6 Machine        │     git commit -am "<name> <version>" && git push
+ 7 Tap            │   2 tag it: the release workflow builds it and updates the tap
+ 8 Doctor       ✓ │ ▌   git tag v<version> && git push origin v<version>
+                  │   3 watch it
+                  │     gh run watch
+                  │
+                  │  On this Mac
+                  │   4 check it
+                  │     brew update && brew upgrade de-hv/tap/<name>
+                  │     <name> --version
+                  │
+                  │
+                  │
+                  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+ ↑↓ command ⋅ c copy ⋅ t kind ⋅ ← tools ⋅ 1-8 jump ⋅ q quit ⋅ ? help

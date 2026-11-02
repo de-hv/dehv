@@ -176,12 +176,11 @@ type doctorLoaded struct {
 	in     core.Install
 }
 
-// doctor is `dehv doctor`, `dehv where` and the release steps of `dehv tap`.
+// doctor is `dehv doctor` and `dehv where`.
 type doctor struct {
 	sc     scroller
 	checks []core.Check
 	in     core.Install
-	kind   int
 	loaded bool
 }
 
@@ -219,30 +218,21 @@ func (d *doctor) update(msg tea.Msg, _ bool) tea.Cmd {
 }
 
 func (d *doctor) refresh() {
+	// The tally is in the heading already: not again below the checks.
 	ls := cli.DoctorLines(d.checks, true)
-	ls = append(ls, "", ui.Dim.Render("install"))
+	ls = ls[:len(ls)-2]
+	ls = append(ls, "", ui.Dim.Render("where"))
 	ls = append(ls, cli.WhereLines(d.in)...)
-	kind := core.TapKinds[d.kind].Kind
-	ls = append(ls, "", ui.Dim.Render("release")+"  "+ui.Dim.Render("t: ")+kind+ui.Dim.Render(" (goreleaser, cask, formula)"))
-	ls = append(ls, cli.TapLines(kind, true)[2:]...)
 	d.sc.lines = ls
 }
 
 func (d *doctor) key(msg tea.KeyPressMsg) (bool, tea.Cmd) {
-	if d.sc.key(msg) {
-		return true, nil
-	}
-	if msg.String() == "t" {
-		d.kind = (d.kind + 1) % len(core.TapKinds)
-		d.refresh()
-		return true, nil
-	}
-	return false, nil
+	return d.sc.key(msg), nil
 }
 
 func (d *doctor) capturing() bool { return false }
 func (d *doctor) hints() []hint {
-	return []hint{{"t", "release steps"}, {"j/k", "scroll"}, {"r", "check again"}}
+	return []hint{{"j/k", "scroll"}, {"r", "check again"}}
 }
 
 func (d *doctor) view(w, h int, focused bool) string {

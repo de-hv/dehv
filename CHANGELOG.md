@@ -3,7 +3,7 @@
 ## 1.0.0
 
 - dehv is a Go binary: the same commands with the same options, one file each on Cobra and Fang, and their logic in `internal/core`, which the hub shares. The zsh (`bin/dehv`, `lib.zsh`, `commands/`) is gone.
-- `dehv` alone in a terminal opens a hub: Ports, Branches, Profiles, Skills, Walls, Machine and Doctor, each a panel with its own keys. A sidebar from 120 columns, tabs below, one panel under 80, and a too-small message under 50×12. Piped, or with `--plain` or `NO_TUI=1`, it prints the list of commands, grouped.
+- `dehv` alone in a terminal opens a hub: Ports, Branches, Profiles, Skills, Walls, Machine, Tap and Doctor, each a panel with its own keys. A sidebar from 120 columns, tabs below, one panel under 80, and a too-small message under 50×12. Piped, or with `--plain` or `NO_TUI=1`, it prints the list of commands, grouped.
 - The hub's tools can take the focus: `←` moves it there, `↑↓` (`←→` in the tabs) choose a tool with its panel following, `→` or `enter` go back to the panel. `tab` and `shift+tab` still change the tool, and `1`–`9` jump to the first nine.
 - Installed as a Homebrew cask with prebuilt binaries for Apple silicon and Intel, released by GoReleaser from a `v*` tag; from 0.2.x, `brew uninstall dehv` first. `VERSION` is gone: the tag is the version.
 - Lists are tables without a frame; cards are gone. Pickers and prompts are Huh's, drawn on stderr.

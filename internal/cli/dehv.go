@@ -160,17 +160,7 @@ func TapLines(kind string, tty bool) []string {
 		if !tty {
 			return s
 		}
-		var b strings.Builder
-		for {
-			i := strings.Index(s, "<")
-			j := strings.Index(s, ">")
-			if i < 0 || j < i {
-				b.WriteString(s)
-				return b.String()
-			}
-			b.WriteString(s[:i] + ui.Generic.Render(s[i:j+1]))
-			s = s[j+1:]
-		}
+		return GenericNames(s)
 	}
 	var lines []string
 	if tty {
@@ -216,4 +206,20 @@ func TapLines(kind string, tty bool) []string {
 		}
 	}
 	return lines
+}
+
+// GenericNames styles the generic names of s, like <name>, in yellow, for
+// whoever copies the line to know what to replace.
+func GenericNames(s string) string {
+	var b strings.Builder
+	for {
+		i := strings.Index(s, "<")
+		j := strings.Index(s, ">")
+		if i < 0 || j < i {
+			b.WriteString(s)
+			return b.String()
+		}
+		b.WriteString(s[:i] + ui.Generic.Render(s[i:j+1]))
+		s = s[j+1:]
+	}
 }

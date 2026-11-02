@@ -227,3 +227,27 @@ func TestToolsFocus(t *testing.T) {
 		t.Fatal("enter gives the focus back")
 	}
 }
+
+func TestTap(t *testing.T) {
+	m := press(fixture(t, 120, 24), "7")
+	tp, ok := m.panels[m.active].(*tap)
+	if !ok {
+		t.Fatalf("7 is Tap, got %s", m.panels[m.active].name())
+	}
+	first := tp.sel
+	if tp.lines[first].copy == "" {
+		t.Fatal("the selection starts on a command")
+	}
+	m = press(m, "down")
+	if tp.sel <= first || tp.lines[tp.sel].copy == "" {
+		t.Fatal("↓ goes to the next command, past the notes")
+	}
+	golden(t, "tap-wide", frame(m))
+	m = press(m, "t")
+	if core.TapKinds[tp.kind].Kind != "cask" || tp.lines[tp.sel].copy == "" {
+		t.Fatalf("t shows the next kind from its first command: %s", core.TapKinds[tp.kind].Kind)
+	}
+	if m.panels[7].name() != "Doctor" {
+		t.Fatal("Doctor is the last one")
+	}
+}
