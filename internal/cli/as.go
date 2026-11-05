@@ -288,7 +288,7 @@ func chooseProfile(cmd *cobra.Command) (string, error) {
 	return ps[i].Name, nil
 }
 
-// initFile is -i of as and wall: create the file, or keep or blank the one
+// initFile is -i of as: create the file, or keep or blank the one
 // there, keeping the old one as .bak.
 func initFile(cmd *cobra.Command, file, one, many string) error {
 	home := config.Tilde(file)
@@ -303,14 +303,8 @@ func initFile(cmd *cobra.Command, file, one, many string) error {
 		return err
 	}
 	var names []string
-	if one == "profile" {
-		for _, p := range core.Profiles() {
-			names = append(names, p.Name)
-		}
-	} else {
-		for _, w := range core.Walls() {
-			names = append(names, w.Name)
-		}
+	for _, p := range core.Profiles() {
+		names = append(names, p.Name)
 	}
 	switch len(names) {
 	case 0:

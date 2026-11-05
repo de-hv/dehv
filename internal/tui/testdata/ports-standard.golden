@@ -1,6 +1,6 @@
  dehv  ~/dev/dehv · main · as personal                                   v1.0.0
 ────────────────────────────────────────────────────────────────────────────────
- 1 Ports  2 Branches  3 Profiles  4 Skills  5 Walls  6 Machine  7 Tap  8 Doctor
+ 1 Ports  2 Branches  3 Profiles  4 Skills  5 Machine  6 Tap  7 Doctor
  Ports · 3 listening
    PORT  PROGRAM   PID   USER
  ▌ 3000  node      4821  david
@@ -21,4 +21,4 @@
 
 ────────────────────────────────────────────────────────────────────────────────
 
- x kill ⋅ / filter ⋅ r refresh ⋅ ← tools ⋅ 1-8 jump ⋅ q quit ⋅ ? help
+ x kill ⋅ / filter ⋅ r refresh ⋅ ← tools ⋅ 1-7 jump ⋅ q quit ⋅ ? help

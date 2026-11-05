@@ -34,8 +34,7 @@ func handleError(_ io.Writer, err error) {
 	var ue *UsageError
 	var ce *core.Error
 	switch {
-	case errors.Is(err, errSilent), errors.Is(err, ui.ErrCancelled),
-		errors.Is(err, core.ErrDeclined), errors.Is(err, context.Canceled):
+	case errors.Is(err, errSilent), errors.Is(err, ui.ErrCancelled), errors.Is(err, context.Canceled):
 	case errors.As(err, &ue):
 		ui.Eprintln(ue.Cmd.CommandPath() + ": " + ue.Msg)
 		ui.Eprintln(ui.Dim.Render("Usage: " + ue.Cmd.UseLine()))

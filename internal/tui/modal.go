@@ -31,20 +31,13 @@ type confirm struct {
 	lines []string
 	yes   string // the verb: kill, delete…
 	onYes tea.Cmd
-	reply chan bool // instead of onYes, for work waiting in a goroutine
 }
 
 func (c *confirm) key(msg tea.KeyPressMsg) (bool, tea.Cmd) {
 	switch msg.String() {
 	case "y", "Y":
-		if c.reply != nil {
-			c.reply <- true
-		}
 		return true, c.onYes
 	case "n", "N", "esc", "enter", "q":
-		if c.reply != nil {
-			c.reply <- false
-		}
 		return true, nil
 	}
 	return false, nil

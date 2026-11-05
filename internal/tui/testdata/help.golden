@@ -1,6 +1,6 @@
  dehv  ~/dev/dehv · main · as personal                                                       v1.0.0
 ──────────────────────╭──────────────────────────────────────────────────────╮──────────────────────
- 1 Ports  2 Branches  │                                                      │r
+ 1 Ports  2 Branches  │                                                      │
  Ports · 3 listening  │  Keys                                                │
    PORT  PROGRAM   PID│                                                      │
  ▌ 3000  node      482│  Ports                                               │
@@ -12,7 +12,7 @@
                       │    ← / h         focus the tools                     │
                       │    ←→ / h l      with the tools focused: choose one  │
                       │    ↓ / j / enter with the tools focused: back to it  │
-                      │    1-8           jump to a tool                      │
+                      │    1-7           jump to a tool                      │
                       │    tab / ]       next tool                           │
                       │    shift+tab / [ previous tool                       │
                       │    ↑↓ / j k      move                                │
@@ -27,4 +27,4 @@
                       │                                                      │
 ──────────────────────╰──────────────────────────────────────────────────────╯──────────────────────
 
- x kill ⋅ / filter ⋅ r refresh ⋅ ← tools ⋅ 1-8 jump ⋅ q quit ⋅ ? help
+ x kill ⋅ / filter ⋅ r refresh ⋅ ← tools ⋅ 1-7 jump ⋅ q quit ⋅ ? help

@@ -52,7 +52,7 @@ func say(kind, text string) tea.Cmd {
 
 // failed puts err in the status line, as `✗ what · why`.
 func failed(err error) tea.Cmd {
-	if errors.Is(err, core.ErrDeclined) || errors.Is(err, context.Canceled) {
+	if errors.Is(err, context.Canceled) {
 		return nil
 	}
 	var ce *core.Error
@@ -68,41 +68,9 @@ func failed(err error) tea.Cmd {
 
 func busy(text string) tea.Cmd { return func() tea.Msg { return busyMsg{text} } }
 
-// prog is the running hub, for work in goroutines to report to, and hubCtx
-// its context, cancelled when it is stopped.
-var (
-	prog   *tea.Program
-	hubCtx = context.Background()
-)
-
-// reporter is core.Reporter for the hub: steps in the status line, results
-// as messages, and a dialog for confirmations, answered through a channel.
-type reporter struct{}
-
-func send(m tea.Msg) {
-	if prog != nil {
-		prog.Send(m)
-	}
-}
-
-func (reporter) Step(msg string)       { send(busyMsg{msg}) }
-func (reporter) OK(msg, detail string) { send(statusMsg{"ok", join(msg, detail)}) }
-func (reporter) Noop(msg string)       { send(statusMsg{"info", msg}) }
-func (reporter) Confirm(what, ask string, items []string) (bool, error) {
-	if prog == nil {
-		return false, core.ErrNoTerminal
-	}
-	reply := make(chan bool, 1)
-	send(openMsg{&confirm{title: what, lines: append(items, "", ask), yes: "go ahead", reply: reply}})
-	return <-reply, nil
-}
-
-func join(msg, detail string) string {
-	if detail == "" {
-		return msg
-	}
-	return msg + " · " + detail
-}
+// hubCtx is the running hub's context, cancelled when it is stopped, for
+// work in goroutines.
+var hubCtx = context.Background()
 
 type logEntry struct {
 	at         time.Time
@@ -110,7 +78,6 @@ type logEntry struct {
 }
 
 type model struct {
-	ctx    context.Context
 	panels []panel
 	active int
 	w, h   int
@@ -125,14 +92,13 @@ type model struct {
 	onNav    bool // the tools have the focus: the arrows move between them
 }
 
-func newModel(ctx context.Context) model {
+func newModel() model {
 	sp := spinner.New(spinner.WithSpinner(spinner.MiniDot))
 	sp.Style = lipgloss.NewStyle().Foreground(ui.Blue)
 	return model{
-		ctx: ctx,
 		panels: []panel{
 			newPorts(), newBranches(), newProfiles(), newSkills(),
-			newWalls(ctx), newMachine(), newTap(), newDoctor(),
+			newMachine(), newTap(), newDoctor(),
 		},
 		spin: sp,
 	}
@@ -140,9 +106,8 @@ func newModel(ctx context.Context) model {
 
 // Run opens the hub until it is quit.
 func Run(ctx context.Context) error {
-	p := tea.NewProgram(newModel(ctx), tea.WithContext(ctx))
-	prog, hubCtx = p, ctx
-	defer func() { prog = nil }()
+	p := tea.NewProgram(newModel(), tea.WithContext(ctx))
+	hubCtx = ctx
 	_, err := p.Run()
 	if errors.Is(err, tea.ErrProgramKilled) || errors.Is(err, tea.ErrInterrupted) {
 		return nil

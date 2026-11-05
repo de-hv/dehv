@@ -99,9 +99,7 @@ var Needs = [][4]string{
 	{"lsof", "macOS", "required", ""},
 	{"pbcopy", "macOS", "required", ""},
 	{"osascript", "macOS", "required", ""},
-	{"sips", "macOS", "required", ""},
 	{"networksetup", "macOS", "required", ""},
-	{"gh", "Homebrew", "optional", "dehv wall uses it for ssh or https"},
 }
 
 // hasGit counts git once the Command Line Tools are there: macOS ships a
@@ -153,9 +151,9 @@ func Doctor() []Check {
 		}
 	}
 
-	// The files the commands write, when they are there; profiles and walls
-	// stay readable only by me.
-	for _, name := range []string{"config", "profiles", "walls"} {
+	// The files the commands write, when they are there; profiles stay
+	// readable only by me.
+	for _, name := range []string{"config", "profiles"} {
 		f := config.File(name)
 		st, err := os.Stat(f)
 		switch {

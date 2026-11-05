@@ -4,10 +4,10 @@
  2 Branches     2 │   PORT  PROGRAM   PID   USER
  3 Profiles       │ ▌ 3000  node      4821  david
  4 Skills         │   5173  vite      4907  david
- 5 Walls          │   5432  postgres  612   david
- 6 Machine        │
- 7 Tap            │
- 8 Doctor       ✓ │
+ 5 Machine        │   5432  postgres  612   david
+ 6 Tap            │
+ 7 Doctor       ✓ │
+                  │
                   │
                   │
                   │
@@ -17,4 +17,4 @@
                   │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
- x kill ⋅ / filter ⋅ r refresh ⋅ ← tools ⋅ 1-8 jump ⋅ q quit ⋅ ? help
+ x kill ⋅ / filter ⋅ r refresh ⋅ ← tools ⋅ 1-7 jump ⋅ q quit ⋅ ? help

@@ -58,29 +58,6 @@ func TestUptime(t *testing.T) {
 	}
 }
 
-func TestShortURL(t *testing.T) {
-	for in, want := range map[string]string{
-		"git@github.com:de-hv/wallpapers.git":     "de-hv/wallpapers",
-		"https://github.com/de-hv/wallpapers.git": "de-hv/wallpapers",
-		"https://github.com/de-hv/wallpapers":     "de-hv/wallpapers",
-		"ssh://git@github.com/de-hv/walls.git":    "de-hv/walls",
-	} {
-		if got := ShortURL(in); got != want {
-			t.Errorf("%s: got %q, want %q", in, got, want)
-		}
-	}
-}
-
-func TestChanges(t *testing.T) {
-	st := "A\ta.jpg\nA\tb.jpg\nD\tc.jpg\nR100\td.jpg\te.jpg\nM\tf.jpg"
-	if got := changes(st, false); got != "2 added, 1 removed, 1 renamed, 1 changed" {
-		t.Errorf("got %q", got)
-	}
-	if got := changes(st, true); got != "add 2, remove 1, rename 1, change 1" {
-		t.Errorf("got %q", got)
-	}
-}
-
 func TestValidNames(t *testing.T) {
 	for name, ok := range map[string]bool{"acme": true, "my-co_2": true, "123": false, "Acme": false, "a b": false, "": false} {
 		if ValidProfile(name) != ok {
@@ -90,19 +67,6 @@ func TestValidNames(t *testing.T) {
 	for name, ok := range map[string]bool{"notes": true, "a/b": false, ".hidden": false, "": false} {
 		if ValidSkill(name) != ok {
 			t.Errorf("ValidSkill(%q) should be %v", name, ok)
-		}
-	}
-}
-
-func TestImageName(t *testing.T) {
-	for in, want := range map[string]string{
-		"https://x.com/img/aurora.jpg?w=3840":  "aurora.jpg",
-		"https://x.com/img/my%20wall.png":      "my wall.png",
-		"https://x.com/":                       "wallpaper",
-		"https://images.unsplash.com/photo-12": "photo-12",
-	} {
-		if got := ImageName(in); got != want {
-			t.Errorf("%s: got %q, want %q", in, got, want)
 		}
 	}
 }
@@ -165,33 +129,6 @@ func TestProfilesFile(t *testing.T) {
 	}
 	if _, ok := GetProfile("acme"); ok {
 		t.Error("acme is still there")
-	}
-}
-
-func TestWallsFile(t *testing.T) {
-	home(t)
-	if _, _, err := WallInUse(); err == nil {
-		t.Error("no repos is an error")
-	}
-	if err := SaveWall(Wall{Name: "personal", URL: "git@github.com:de-hv/w.git", Dir: "~/Pictures/w"}); err != nil {
-		t.Fatal(err)
-	}
-	if err := SaveWall(Wall{Name: "work", URL: "https://github.com/acme/w.git", Dir: "~/Pictures/acme"}); err != nil {
-		t.Fatal(err)
-	}
-	w, ok, err := WallInUse()
-	if err != nil || !ok || w.Name != "personal" {
-		t.Fatalf("the first one is in use: got %+v %v %v", w, ok, err)
-	}
-	if _, err := RemoveWall("personal"); err != nil {
-		t.Fatal(err)
-	}
-	// With the one in use forgotten and one left, it is that one.
-	if w, ok, _ := WallInUse(); !ok || w.Name != "work" {
-		t.Fatalf("got %+v", w)
-	}
-	if got := WallState(Wall{Dir: "~/nowhere"}); got != "not cloned" {
-		t.Errorf("got %q", got)
 	}
 }
 

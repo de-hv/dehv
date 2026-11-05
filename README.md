@@ -40,8 +40,7 @@ To see the `dehv hi` card in every new terminal, add `dehv hi` to `~/.zshrc` by 
 | Needs | From |
 |---|---|
 | `git` | Apple's Command Line Tools (`xcode-select --install`) |
-| `lsof`, `pbcopy`, `osascript`, `sips`, `networksetup` | macOS: they come with every Mac |
-| `gh` (optional) | Homebrew (`brew install gh`). Only `dehv wall` uses it, to choose ssh or https for `owner/name` urls |
+| `lsof`, `pbcopy`, `osascript`, `networksetup` | macOS: they come with every Mac |
 
 ## The hub
 
@@ -54,13 +53,12 @@ To see the `dehv hi` card in every new terminal, add `dehv hi` to `~/.zshrc` by 
  2 Branches     2 │   PORT  PROGRAM   PID   USER
  3 Profiles       │ ▌ 3000  node      4821  david
  4 Skills       4 │   5173  vite      4907  david
- 5 Walls          │   5432  postgres  612   david
- 6 Machine        │
- 7 Tap            │
- 8 Doctor       ✓ │
+ 5 Machine        │   5432  postgres  612   david
+ 6 Tap            │
+ 7 Doctor       ✓ │
 ──────────────────────────────────────────────────────────────────────────────────────
  ✓ killed node (4821) on port 3000
- x kill ⋅ / filter ⋅ r refresh ⋅ ← tools ⋅ 1-8 jump ⋅ q quit ⋅ ? help
+ x kill ⋅ / filter ⋅ r refresh ⋅ ← tools ⋅ 1-7 jump ⋅ q quit ⋅ ? help
 ```
 
 | Tool | Shows | Keys |
@@ -69,10 +67,9 @@ To see the `dehv hi` card in every new terminal, add `dehv hi` to `~/.zshrc` by 
 | 2 Branches | this repo's branches, merged and gone ones ticked; it fetches with `--prune` once | `space` tick, `a` tick all, `d` delete the ticked ones, after asking, `f` fetch |
 | 3 Profiles | my git profiles, `●` on the one this repo commits as | `enter` commit as it, `n` new, `e` edit, `a` amend the last commits, `d` remove |
 | 4 Skills | my skills, a column per installed agent, `!` on those without description or broken | `enter` tick the agents to link it into, `e` edit its `SKILL.md` in `$EDITOR`, `n` new, `d` trash, `R` restore |
-| 5 Walls | my wallpaper repos, `●` on the one in use | `s` sync, `S` sync all, `a` add an image by url, `o` open the folder, `u` use, `n` new, `e` edit, `d` forget |
-| 6 Machine | the `dehv hi` card and this Mac's addresses | `c` copy the local IP, `p` ask the public one, `C` copy it |
-| 7 Tap | the steps of `dehv tap` to release to my homebrew-tap, a kind at a time | `↑↓` choose a command, `c` copy it, `t` the next kind (`T` the previous) |
-| 8 Doctor | `dehv doctor` and `dehv where` | `j k` scroll |
+| 5 Machine | the `dehv hi` card and this Mac's addresses | `c` copy the local IP, `p` ask the public one, `C` copy it |
+| 6 Tap | the steps of `dehv tap` to release to my homebrew-tap, a kind at a time | `↑↓` choose a command, `c` copy it, `t` the next kind (`T` the previous) |
+| 7 Doctor | `dehv doctor` and `dehv where` | `j k` scroll |
 
 The focus is either on the tools or on the panel. `←` or `h` moves it to the tools: there `↑↓` or `j k` choose one, its panel following along, and `→`, `l` or `enter` give the focus back to it. In the row of tabs of a narrower terminal it is `←→` to choose and `↓` or `enter` to go back. The bar `▌` marks where the focus is, and panel keys only work with the focus on the panel.
 
@@ -171,33 +168,6 @@ The skills live in `~/Documents/dev/skills`, or the folder in `skill.dir` of the
 | `xcode` | `~/Library/Developer/Xcode/CodingAssistant` | the same folder |
 | `codex` | `~/.agents` | `~/.agents/skills` |
 
-### dehv wall
-
-`dehv wall` keeps my wallpapers in a GitHub repo, cloned into a folder, so adding one from the web or dropping one in the folder ends up in both.
-
-| Command | Does |
-|---|---|
-| `dehv wall <url> [<name>]` | download the image into the repo in use, then commit and push it. Anything that is not an image is refused |
-| `dehv wall -s` | commit what changed in the folder, rebase on GitHub's and push; the first time, only clone it (`--sync`). Removals, here or on GitHub, are asked first |
-| `dehv wall -s -a` | the same for every repo; one that fails does not stop the rest (`--all`) |
-| `dehv wall -o` | open the folder (`--open`) |
-| `dehv wall -t <repo> ...` | with `<url>`, `-s` or `-o`: that repo just this once (`--to`) |
-| `dehv wall -u [<repo>]` | the repo the rest use; picked from a list without one (`--use`) |
-| `dehv wall -n <repo>` | add or edit a repo: asks its url (`owner/name` is enough) and its folder, `~/Pictures/<name>` by default (`--new`) |
-| `dehv wall -r <repo>` | forget a repo; its folder stays (`--remove`) |
-| `dehv wall -l` | list my repos with their folder and images (`--list`) |
-| `dehv wall -i`, `dehv wall -x` | create the repos file, or forget every repo, as `dehv as -i` and `-x` do |
-
-The repos are this Mac's, in `~/.config/dehv/walls`, in git's config format:
-
-```ini
-[wall]
-	use = personal
-[repo "personal"]
-	url = git@github.com:de-hv/wallpapers.git
-	dir = ~/Pictures/wallpapers
-```
-
 ## Config
 
 `~/.config/dehv/config`, in git's config format. Every key is optional:
@@ -216,7 +186,7 @@ The repos are this Mac's, in `~/.config/dehv/walls`, in git's config format:
 ```
 dehv/
 ├── cmd/dehv/            main: the version, and the hub plugged into the commands
-├── internal/core/       what dehv does, without how it looks: ports, branches, profiles, skills, walls, doctor…
+├── internal/core/       what dehv does, without how it looks: ports, branches, profiles, skills, doctor…
 ├── internal/cli/        the commands, one file each, on Cobra and Fang
 ├── internal/tui/        the hub, on Bubble Tea: the app, the table, the dialogs and a file per panel
 ├── internal/ui/         one-shot output: One Dark's tokens, marks, tables, pickers, the spinner

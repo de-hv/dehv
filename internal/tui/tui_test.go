@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"context"
 	"flag"
 	"os"
 	"path/filepath"
@@ -20,7 +19,7 @@ var update = flag.Bool("update", false, "rewrite the golden frames")
 func fixture(t *testing.T, w, h int) model {
 	t.Helper()
 	core.Version = "1.0.0"
-	m := newModel(context.Background())
+	m := newModel()
 	msgs := []tea.Msg{
 		tea.WindowSizeMsg{Width: w, Height: h},
 		repoMsg{core.Repo{Dir: "~/dev/dehv", Branch: "main", Profile: "personal"}},
@@ -229,10 +228,10 @@ func TestToolsFocus(t *testing.T) {
 }
 
 func TestTap(t *testing.T) {
-	m := press(fixture(t, 120, 24), "7")
+	m := press(fixture(t, 120, 24), "6")
 	tp, ok := m.panels[m.active].(*tap)
 	if !ok {
-		t.Fatalf("7 is Tap, got %s", m.panels[m.active].name())
+		t.Fatalf("6 is Tap, got %s", m.panels[m.active].name())
 	}
 	first := tp.sel
 	if tp.lines[first].copy == "" {
@@ -247,7 +246,7 @@ func TestTap(t *testing.T) {
 	if core.TapKinds[tp.kind].Kind != "cask" || tp.lines[tp.sel].copy == "" {
 		t.Fatalf("t shows the next kind from its first command: %s", core.TapKinds[tp.kind].Kind)
 	}
-	if m.panels[7].name() != "Doctor" {
+	if m.panels[6].name() != "Doctor" {
 		t.Fatal("Doctor is the last one")
 	}
 }

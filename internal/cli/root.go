@@ -27,7 +27,6 @@ var groups = []*cobra.Group{
 	{ID: "git", Title: "Git"},
 	{ID: "system", Title: "System"},
 	{ID: "agents", Title: "Agents"},
-	{ID: "media", Title: "Media"},
 	{ID: "dehv", Title: "dehv"},
 }
 
@@ -54,7 +53,6 @@ func Root() *cobra.Command {
 		asCmd(), branchesCmd(),
 		portCmd(), ipCmd(), hiCmd(),
 		skillCmd(),
-		wallCmd(),
 		doctorCmd(), whereCmd(), tapCmd(),
 	)
 	return root

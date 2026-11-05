@@ -31,7 +31,7 @@ func Dir() string {
 	return filepath.Join(base, "dehv")
 }
 
-// File is the path of one of them: config, profiles or walls.
+// File is the path of one of them: config or profiles.
 func File(name string) string { return filepath.Join(Dir(), name) }
 
 // Tilde writes the home folder at the start of path as ~.

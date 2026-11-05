@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- `dehv wall` is gone, and its Walls panel with it: the wallpapers repo is cloned by hand and kept with git, and macOS's own Wallpaper settings choose one. `~/.config/dehv/walls` is no longer read; remove it by hand. The hub's tools are now 1 to 7.
+- `dehv doctor` no longer checks `sips` nor `gh`: only `dehv wall` used them.
+
 ## 1.0.2
 
 - The spinner no longer flickers, as it did through the long steps of `dehv wall -s` inside tmux: each frame is drawn in one write and the line cleared after it, never before, and the terminal's colours are detected once per spinner instead of on every frame, which inside tmux ran `tmux info` every 80 ms.

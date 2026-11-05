@@ -30,7 +30,7 @@ func TestList(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("exit %d", code)
 	}
-	for _, want := range []string{"Usage: dehv <command>", " Git ", "as", "branches", "wall", "--help for its options"} {
+	for _, want := range []string{"Usage: dehv <command>", " Git ", "as", "branches", "skill", "--help for its options"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("the list has no %q:\n%s", want, out)
 		}
@@ -52,9 +52,6 @@ func TestMisuse(t *testing.T) {
 		{[]string{"as", "Acme"}, "invalid profile 'Acme'"},
 		{[]string{"skill", "a/b"}, "invalid name 'a/b'"},
 		{[]string{"skill", "-a", "x"}, "-a goes alone"},
-		{[]string{"wall", "-s", "-o"}, "-s and -o go apart"},
-		{[]string{"wall", "ftp://x"}, "is not an http(s) url"},
-		{[]string{"wall", "-a"}, "-a goes with -s"},
 		{[]string{"tap", "brew"}, "'brew' is not goreleaser, cask, formula"},
 		{[]string{"tap"}, "no terminal to ask on"},
 		{[]string{"nope"}, "unknown command"},
@@ -77,8 +74,6 @@ func TestFailures(t *testing.T) {
 	}{
 		{[]string{"as", "-l"}, "✗ no profiles yet · 'dehv as -n <profile>' or 'dehv as -i'"},
 		{[]string{"as", "-r", "acme"}, "✗ no profile acme"},
-		{[]string{"wall", "-l"}, "✗ no repos yet"},
-		{[]string{"wall", "-s"}, "✗ no repos yet"},
 		{[]string{"skill", "notes"}, "does not exist"},
 	} {
 		_, errOut, code := run(t, c.args...)
@@ -108,7 +103,7 @@ func TestPipedOutput(t *testing.T) {
 
 func TestHelpWithoutArgs(t *testing.T) {
 	// A command that needs an argument shows its help alone, and exits 0.
-	for _, cmd := range []string{"port", "as", "skill", "wall"} {
+	for _, cmd := range []string{"port", "as", "skill"} {
 		if _, _, code := run(t, cmd); code != 0 {
 			t.Errorf("dehv %s: exit %d", cmd, code)
 		}
