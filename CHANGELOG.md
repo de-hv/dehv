@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.0
 
 - `dehv wall` is gone, and its Walls panel with it: the wallpapers repo is cloned by hand and kept with git, and macOS's own Wallpaper settings choose one. `~/.config/dehv/walls` is no longer read; remove it by hand. The hub's tools are now 1 to 7.
 - `dehv doctor` no longer checks `sips` nor `gh`: only `dehv wall` used them.
